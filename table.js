@@ -45,10 +45,10 @@ class TruthTable {
                 } else {
                     minTermHTMLString += symbol // add regular symbol otherwise
                 }
-                if (j != this.varNames.length - 1){
+                if (j != this.varNames.length - 1) {
                     minTermHTMLString += '*';
                 }
-                
+
             }
             minTermHTMLString += '</td>'
             this.tableMinTerms.push(minTermHTMLString + '\n')
@@ -75,11 +75,34 @@ class TruthTable {
         }
     }
 
+    addFunction(booleanFunction) {
+        let tableFunction = [booleanFunction]
+        let tableValuesDict = {} // make varNames keys in a dictionary
+        for (let i = 0; i < this.tableInputs.length; i++) {
+            for (let j = 0; j < this.varNames.length; j++) {
+                tableValuesDict[this.varNames[j]] = this.tableInputs[i][j];
+            }
+
+            let formattedFunction = booleanFunction
+            for (const key in tableValuesDict){
+                formattedFunction = formattedFunction.replace(key, tableValuesDict[key])
+            }
+            console.log(formattedFunction);
+            tableFunction.push(eval(formattedFunction))
+        }
+        this.tableFunctions.push(tableFunction)
+    }
+
     getTableHTML() {
         let tableHTML = '<table>\n';
         tableHTML += '<tr>\n'
         for (let i = 0; i < this.varNames.length; i++) {
             tableHTML += `<th>${this.varNames[i]}</th>\n`
+        }
+        if (this.tableFunctions.length > 0){
+            for (let i = 0; i < this.tableFunctions.length; i++){
+                tableHTML += `<th>${this.tableFunctions[i][0]}</th>`
+            }
         }
         if (this.tableMinTerms.length != 0) {
             tableHTML += '<th>min</th>';
@@ -93,7 +116,12 @@ class TruthTable {
             for (let j = 0; j < this.tableInputs[i].length; j++) {
                 tableHTML += `<td>${this.tableInputs[i][j]}</td>\n`
             }
-            if (this.tableMinTerms.length != 0){
+            if (this.tableFunctions.length != 0){
+                for (let j = 0; j < this.tableFunctions.length; j++){
+                    tableHTML += `<td>${this.tableFunctions[j][i + 1]}</td>\n`
+                }
+            }
+            if (this.tableMinTerms.length != 0) {
                 tableHTML += this.tableMinTerms[i];
             }
             if (this.tableMaxTerms.length != 0) {
@@ -127,5 +155,8 @@ class TruthTable {
 table = new TruthTable(['a', 'b', 'c'])
 table.addMinTerm()
 table.addMaxTerm()
+console.log('adding function a&&b')
+table.addFunction('a&&b')
+table.addFunction('a||b')
 console.log(table.getTableHTML())
 document.getElementById('test_div').innerHTML = table.getTableHTML()
