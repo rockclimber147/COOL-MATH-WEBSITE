@@ -83,5 +83,5 @@ class Number {
     }
 }
 
-myNum = new Number('123abC.XYZ233', true);
-console.log(myNum.getRepresentation())
+// myNum = new Number('123abC.XYZ233', true);
+// console.log(myNum.getRepresentation())
