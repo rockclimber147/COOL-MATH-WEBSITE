@@ -4,7 +4,7 @@ class Number {
     integerPartValues = [];           // list of decimal values of the symbol characters making the INTEGER part of the input number
     fractionalPartValues = [];        // list of decimal values of the symbol characters making the FRACTIONAL part of the input number
     fractionalRepeatingSlice = [];    // slice representing the repeating part of the fractional section
-    processString;                    // used to store the steps executed when applying mrethods to itself
+    processString;                    // used to store the steps executed when applying methods to itself
 
     /**
      * Construct a new number object with optional debug logging
