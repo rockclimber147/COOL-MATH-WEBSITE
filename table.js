@@ -22,6 +22,24 @@ class TruthTable{
         }
     }
 
+    getTableHTML(){
+        let tableHTML = '<table>\n';
+        tableHTML += '<tr>\n'
+        for (let i = 0; i < this.varNames.length; i++){
+            tableHTML += `<th>${this.varNames[i]}</th>\n`
+        }
+        tableHTML += '</tr>\n'
+        for (let i = 0; i < this.tableInputs.length; i++){
+            tableHTML += '<tr>\n'
+            for (let j = 0; j < this.tableInputs[i].length; j++){
+                tableHTML += `<td>${this.tableInputs[i][j]}</td>\n`
+            }
+            tableHTML += '</tr>\n'
+        }
+        tableHTML += '</table>\n'
+        return tableHTML;
+    }
+
     logTable(){
         // start with an empty string
         let displayString = ''
@@ -42,4 +60,4 @@ class TruthTable{
 }
 
 table = new TruthTable(['a', 'b', 'c'])
-console.log(table.logTable())
+document.getElementById('test_div').innerHTML = table.getTableHTML()
