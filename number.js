@@ -1,21 +1,33 @@
 class Number {
     debugMode = false
+    numberBase;
     integerPartValues = [];           // list of decimal values of the symbol characters making the INTEGER part of the input number
     fractionalPartValues = [];        // list of decimal values of the symbol characters making the FRACTIONAL part of the input number
     fractionalRepeatingSlice = [];    // slice representing the repeating part of the fractional section
+    processString;                    // used to store the steps executed when applying mrethods to itself
 
     /**
      * Construct a new number object with optional debug logging
      * @param {*} numString A string representing a number of any positive integer base greater than 2
      * @param {*} debugMode Sets debug logging when true
      */
-    constructor(numString, debugMode) {
+    constructor(numString, base, debugMode) {
         this.debugMode = debugMode
+        this.numberBase = base;
         let separatedNumber = numString.toUpperCase().split('.'); // split at decimal point
         this.debugLog(`${numString} => ${numString.split('.')}`)
 
         this.populateNumberLists(separatedNumber);
         this.debugLog(`Integer part: ${this.integerPartValues}\nFractional part: ${this.fractionalPartValues}`)
+    }
+
+    /**
+     *                                                                                                                                                                                                        TODO 
+     */
+    convertToBaseTen(){
+        this.processString = "";
+
+        currentDigitSignificance = 0;
     }
 
     /**
@@ -108,5 +120,5 @@ class Number {
     }
 }
 
-myNum = new Number('123abC.XYZ233', true);
+myNum = new Number('123abC.XYZ233',10 ,true);
 console.log(myNum.getRepresentation())
