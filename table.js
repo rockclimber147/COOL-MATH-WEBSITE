@@ -37,7 +37,7 @@ class TruthTable {
 
     addMinTerm() {
         for (let i = 0; i < this.tableInputs.length; i++) {
-            let minTermHTMLString = '<td>';
+            let minTermHTMLString = '';
             for (let j = 0; j < this.varNames.length; j++) {
                 let symbol = this.varNames[j];
                 if (this.tableInputs[i][j] == '0') {
@@ -50,28 +50,26 @@ class TruthTable {
                 }
 
             }
-            minTermHTMLString += '</td>'
             this.tableMinTerms.push(minTermHTMLString + '\n')
         }
     }
 
     addMaxTerm() {
         for (let i = 0; i < this.tableInputs.length; i++) {
-            let minTermHTMLString = '<td>';
+            let HTMLString = '';
             for (let j = 0; j < this.varNames.length; j++) {
                 let symbol = this.varNames[j];
                 if (this.tableInputs[i][j] == '1') {
-                    minTermHTMLString += `<span class="overline">${symbol}</span>` // overline the symbols to NOT
+                    HTMLString += `<span class="overline">${symbol}</span>` // overline the symbols to NOT
                 } else {
-                    minTermHTMLString += symbol // add regular symbol otherwise
+                    HTMLString += symbol // add regular symbol otherwise
                 }
                 if (j != this.varNames.length - 1) {
-                    minTermHTMLString += '+';
+                    HTMLString += '+';
                 }
 
             }
-            minTermHTMLString += '</td>'
-            this.tableMaxTerms.push(minTermHTMLString + '\n')
+            this.tableMaxTerms.push(HTMLString + '\n')
         }
     }
 
@@ -91,6 +89,34 @@ class TruthTable {
             tableFunction.push(eval(formattedFunction))
         }
         this.tableFunctions.push(tableFunction)
+    }
+
+    getMinTermsOfFunction(functionIndex){
+        if (functionIndex >= this.tableFunctions.length){
+            return;                                                    //TODO HANDLE ERROR HERE
+        }
+        let currentFunction = this.tableFunctions[functionIndex];
+        let minTermString = '';
+        for (let i = 1; i < currentFunction.length; i++){
+            if (currentFunction[i] == 1){
+                minTermString += this.tableMinTerms[i - 1] + '+';
+            }
+        }
+        return minTermString.slice(0, minTermString.length - 1)
+    }
+
+    getMaxTermsOfFunction(functionIndex) {
+        if (functionIndex >= this.tableFunctions.length) {
+            return;                                                    //TODO HANDLE ERROR HERE
+        }
+        let currentFunction = this.tableFunctions[functionIndex];
+        let maxTermString = '';
+        for (let i = 1; i < currentFunction.length; i++) {
+            if (currentFunction[i] == 0) {
+                maxTermString += `(${this.tableMaxTerms[i - 1]})*`;
+            }
+        }
+        return maxTermString.slice(0, maxTermString.length - 1)
     }
 
     getTableHTML() {
@@ -122,10 +148,10 @@ class TruthTable {
                 }
             }
             if (this.tableMinTerms.length != 0) {
-                tableHTML += this.tableMinTerms[i];
+                tableHTML += `<td>${this.tableMinTerms[i]}</td>`;
             }
             if (this.tableMaxTerms.length != 0) {
-                tableHTML += this.tableMaxTerms[i];
+                tableHTML += `<td>${this.tableMaxTerms[i]}</td>`;
             }
             tableHTML += '</tr>\n'
         }
@@ -157,6 +183,8 @@ table.addMinTerm()
 table.addMaxTerm()
 console.log('adding function a&&b')
 table.addFunction('a&&b')
-table.addFunction('a||b')
 console.log(table.getTableHTML())
+console.log(table.getMinTermsOfFunction(0))
 document.getElementById('test_div').innerHTML = table.getTableHTML()
+document.getElementById('test_div').innerHTML += `<div>MinTerms of f(0): ${table.getMinTermsOfFunction(0)}</div>`
+document.getElementById('test_div').innerHTML += `<div>MaxTerms of f(0): ${table.getMaxTermsOfFunction(0)}</div>`
