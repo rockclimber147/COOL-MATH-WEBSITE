@@ -1,19 +1,23 @@
 class Number {
     debugMode = false
-    numString;
-    integerPartValues = [];
-    fractionalPartValues = [];
-    fractionalRepeatingSlice = [];
+    numString;                        // The input string
+    integerPartValues = [];           // list of decimal values of the symbol characters making the INTEGER part of the input number
+    fractionalPartValues = [];        // list of decimal values of the symbol characters making the FRACTIONAL part of the input number
+    fractionalRepeatingSlice = [];    // slice representing the repeating part of the fractional section
 
     constructor(numString, debugMode) {
         this.debugMode = debugMode
-        let separatedNumber = numString.toUpperCase().split('.');
+        let separatedNumber = numString.toUpperCase().split('.'); // split at decimal point
         this.debugLog(`${numString} => ${numString.split('.')}`)
 
         this.populateNumberLists(separatedNumber);
         this.debugLog(`Integer part: ${this.integerPartValues}\nFractional part: ${this.fractionalPartValues}`)
     }
 
+    /**
+     * Convert integer and fractional number lists to a symbol string
+     * @returns symbolic representation of number lists as a string
+     */
     getRepresentation(){
         let symbolString = "";
         for (let i = 0; i < this.integerPartValues.length; i++){
@@ -28,6 +32,10 @@ class Number {
         return symbolString;
     }
 
+    /**
+     * Translate input string into lists of decimal integers representing the decimal value of each symbol
+     * @param {*} separatedNumber : A list containing either the integer string or both the integer and fractional strings of the input number
+     */
     populateNumberLists(separatedNumber){
         // Integer part will always come first so populate it
         if (separatedNumber[0].length == 0){
@@ -50,7 +58,11 @@ class Number {
             }
         }
     }
-
+    /**
+     * Translate input character to a decimal integer based on the character value
+     * @param {*} character Input character
+     * @returns Decimal representation of the input symbol mapped to hexadecimal standards and beyond
+     */
     getModifiedOrdinal(character) {
         let charValue = character.charCodeAt();
         if (charValue >= 48 && charValue <= 57) {  // '0' == 48, map '0' - '9' to 0 - 9
@@ -64,6 +76,11 @@ class Number {
 
     }
 
+    /**
+     * Translate a decimal integer to a symbol based on hexadecimal notation and beyond
+     * @param {*} modifiedOrdinal The input integer
+     * @returns String character representation of the integer
+     */
     getModifiedChar(modifiedOrdinal){
         let charValue = modifiedOrdinal
         if (modifiedOrdinal <= 9){
@@ -76,6 +93,10 @@ class Number {
         return String.fromCharCode(charValue);
     }
 
+    /**
+     * Log input string to console if this.debugMode is true
+     * @param {*} string The string to log
+     */
     debugLog(string) {
         if (this.debugMode) {
             console.log(string);
