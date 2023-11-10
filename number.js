@@ -1,10 +1,14 @@
 class Number {
     debugMode = false
-    numString;                        // The input string
     integerPartValues = [];           // list of decimal values of the symbol characters making the INTEGER part of the input number
     fractionalPartValues = [];        // list of decimal values of the symbol characters making the FRACTIONAL part of the input number
     fractionalRepeatingSlice = [];    // slice representing the repeating part of the fractional section
 
+    /**
+     * Construct a new number object with optional debug logging
+     * @param {*} numString A string representing a number of any positive integer base greater than 2
+     * @param {*} debugMode Sets debug logging when true
+     */
     constructor(numString, debugMode) {
         this.debugMode = debugMode
         let separatedNumber = numString.toUpperCase().split('.'); // split at decimal point
@@ -34,7 +38,7 @@ class Number {
 
     /**
      * Translate input string into lists of decimal integers representing the decimal value of each symbol
-     * @param {*} separatedNumber : A list containing either the integer string or both the integer and fractional strings of the input number
+     * @param {*} separatedNumber A list containing either the integer string or both the integer and fractional strings of the input number
      */
     populateNumberLists(separatedNumber){
         // Integer part will always come first so populate it
