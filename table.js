@@ -4,7 +4,7 @@ class TruthTable {
     tableInputs = [];
     tableMinTerms = []
     tableMaxTerms = []
-    tableFunctions = []
+    tableFunctions = {'functionNames':[]}
 
     constructor(varNameArray) {
         this.varNames = varNameArray;
@@ -23,18 +23,6 @@ class TruthTable {
         }
     }
 
-    addColumn(columnType) {
-        switch (columnType) {
-            case 'minTerm': {
-                this.addMinTerm();
-                break;
-            } case 'addMaxTerm': {
-                this.addMaxTerm();
-                break;
-            }
-        }
-    }
-
     addMinTerm() {
         for (let i = 0; i < this.tableInputs.length; i++) {
             let minTermHTMLString = '';
@@ -50,7 +38,7 @@ class TruthTable {
                 }
 
             }
-            this.tableMinTerms.push(minTermHTMLString + '\n')
+            this.tableMinTerms.push(minTermHTMLString)
         }
     }
 
@@ -69,12 +57,13 @@ class TruthTable {
                 }
 
             }
-            this.tableMaxTerms.push(HTMLString + '\n')
+            this.tableMaxTerms.push(HTMLString)
         }
     }
 
     addFunction(booleanFunction) {
-        let tableFunction = [booleanFunction]
+        this.tableFunctions['functionNames'].push(booleanFunction)
+        this.tableFunctions[booleanFunction] = []
         let tableValuesDict = {} // make varNames keys in a dictionary
         for (let i = 0; i < this.tableInputs.length; i++) {
             for (let j = 0; j < this.varNames.length; j++) {
@@ -86,40 +75,36 @@ class TruthTable {
                 formattedFunction = formattedFunction.replace(key, tableValuesDict[key])
             }
             console.log(formattedFunction);
-            tableFunction.push(eval(formattedFunction))
+            this.tableFunctions[booleanFunction].push(eval(formattedFunction))
         }
-        this.tableFunctions.push(tableFunction)
     }
 
-    getMinTermsOfFunction(functionIndex){
-        if (functionIndex >= this.tableFunctions.length){
-            return;                                                    //TODO HANDLE ERROR HERE
-        }
-        let currentFunction = this.tableFunctions[functionIndex];
+    getMinTermsOfFunction(functionString){
+        console.log(functionString)
+        console.log(this.tableFunctions)
+        let currentFunctionArray = this.tableFunctions[functionString];
+        console.log(`getting minterms of: ${currentFunctionArray}`)
         let minTermString = '';
-        for (let i = 1; i < currentFunction.length; i++){
-            if (currentFunction[i] == 1){
+        for (let i = 1; i < currentFunctionArray.length; i++){
+            if (currentFunctionArray[i] == 1){
                 minTermString += this.tableMinTerms[i - 1] + '+';
             }
         }
         return minTermString.slice(0, minTermString.length - 1)
     }
 
-    getMaxTermsOfFunction(functionIndex) {
-        if (functionIndex >= this.tableFunctions.length) {
-            return;                                                    //TODO HANDLE ERROR HERE
-        }
-        let currentFunction = this.tableFunctions[functionIndex];
+    getMaxTermsOfFunction(functionString) {
+        let currentFunctionArray = this.tableFunctions[functionString];
         let maxTermString = '';
-        for (let i = 1; i < currentFunction.length; i++) {
-            if (currentFunction[i] == 0) {
+        for (let i = 1; i < currentFunctionArray.length; i++) {
+            if (currentFunctionArray[i] == 0) {
                 maxTermString += `(${this.tableMaxTerms[i - 1]})*`;
             }
         }
         return maxTermString.slice(0, maxTermString.length - 1)
     }
 
-    getTableHTML() {
+    getTableHTML() {                                                  //TODO make functions display with new dictionary structure
         let tableHTML = '<table>\n';
         tableHTML += '<tr>\n'
         for (let i = 0; i < this.varNames.length; i++) {
@@ -184,7 +169,7 @@ table.addMaxTerm()
 console.log('adding function a&&b')
 table.addFunction('a&&b')
 console.log(table.getTableHTML())
-console.log(table.getMinTermsOfFunction(0))
-document.getElementById('test_div').innerHTML = table.getTableHTML()
-document.getElementById('test_div').innerHTML += `<div>MinTerms of f(0): ${table.getMinTermsOfFunction(0)}</div>`
-document.getElementById('test_div').innerHTML += `<div>MaxTerms of f(0): ${table.getMaxTermsOfFunction(0)}</div>`
+console.log(table.getMinTermsOfFunction('a&&b'))
+document.getElementById('test_div').innerHTML += table.getTableHTML()
+document.getElementById('test_div').innerHTML += `<div>MinTerms of f(0): ${table.getMinTermsOfFunction('a&&b')}</div>`
+document.getElementById('test_div').innerHTML += `<div>MaxTerms of f(0): ${table.getMaxTermsOfFunction('a&&b')}</div>`

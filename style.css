@@ -1,7 +1,12 @@
 *{
     font-family: monospace;
+    text-align: center;
 }
 
 .overline {
     text-decoration: overline;
+}
+
+tr:hover{
+    background-color: grey;
 }
