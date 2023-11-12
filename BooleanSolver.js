@@ -59,26 +59,55 @@ class Tokenizer {
 }
 
 class BinaryNode {
-    nodeValue;
+    operator;
     leftBranch;
     rightBranch;
 
-    constructor (nodeType, nodeValue){
-        this.nodeType = nodeType;
+    constructor (nodeValue){
+        this.operator = nodeValue;
+    }
+    evaluate() {
+        if (this.operator == '+'){
+            if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1'){
+                return '1';
+            }
+        } else if (this.operator == '*'){
+            if (this.leftBranch.evaluate() == '0' || this.rightBranch.evaluate() == '0'){
+                return '0';
+            }
+        } else {
+            throw new Error(`BinaryNode contains unknown operator: ${this.operator}`)
+        }
+    }
+}
+
+class UnaryNode{
+    operator;
+    child;
+    constructor (nodeValue){
+        if (nodeValue != '!'){
+            throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
+        }
         this.nodeValue = nodeValue;
     }
     evaluate() {
-        if (this.nodeValue == '+'){
-            if (this.leftBranch.evaluate() == 1 || this.rightBranch.evaluate() == 1){
-                return 1;
-            }
-        } else if (this.nodeValue == '*'){
-            if (this.leftBranch.evaluate() == 0 || this.rightBranch.evaluate() == 0){
-                return 0;
-            }
-        } else {
-            throw new Error(`BinaryNode contains unknown operator: ${this.nodeValue}`)
+        if (this.value == '1'){
+            return '0';
         }
+        return '1';
+    }
+}
+
+class TerminalNode{
+    value;
+    constructor(value){
+        if (value != '1' || value != '0'){
+            throw new Error(`TerminalNode contains illegal value: ${value}`)
+        }
+        this.value = value;
+    }
+    evaluate(){
+        return this.value;
     }
 }
 
