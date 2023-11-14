@@ -1,3 +1,52 @@
+/**
+ * NOTES
+ * OPERATOR PRECEDENCES:
+ * 
+ * parentheses () 4
+ * Not          ! 3
+ * And          * 2
+ * Or           + 1
+ * 
+ * Parenthses > Not > And > Or
+ * 
+ * Operators of greater or equal precedence of the next operator are evaluated from LEFT TO RIGHT
+ * 
+ * A and B or c
+ *    +
+ *   / \
+ *   *  C
+ *  / \
+ * A   B
+ * 
+ * A or B or C
+ *     +
+ *    / \
+ *   +   C
+ *  / \ 
+ * A   B
+ * 
+ * When evaluating left to right: A+B+C+D => (((A+B)+C)+D)
+ * 
+ * 
+ * When the next operator has a higher precedence:
+ * A or B and C
+ *    +
+ *   / \
+ *  A   *
+ *     / \
+ *    B   C
+ * 
+ *  Language GRAMMAR:
+ * 
+ * expression = Term (op Term)? -> One or more terms separated by BINARY OPERATORS
+ * Term = 
+ *        !* Value (1 or 0)  -> A value preceded by 0 or more unary operators
+ *        ( Expression )     -> Another expression inside parentheses
+ *        
+ * 
+ */
+
+
 /*
 OPERATOR PRECEDENCES:
 
@@ -112,10 +161,16 @@ class TerminalNode{
 }
 
 class Parser {
+    tokenizer;
     operatorPrecedences = {
         '!': 3,
         '*': 2,
         '+': 1
+    }
+    tokenArray;
+    constructor(expressionString, debug){
+        let tokenizer = new Tokenizer(debug);
+        this.tokenArray = tokenizer.tokenize(expressionString);
     }
 }
 
