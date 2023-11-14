@@ -1,0 +1,54 @@
+A feature of most interpreted languages is an eval() function. THis function takes as input a string and returns the result of that string as if it were part of the script:
+
+eval('1+1')                          returns 2
+eval(console.log('Hello, world!'))   Logs 'Hello, World!'
+eval(MALICIOUS CODE)                 DOES SOMETHING MALICIOUS
+
+Eval() can be problematic in some cases and developing an alternative can be a fun exercise!
+
+In this case, an alternative will take as input a STRING REPRESENTING A BOOLEAN EQUATION
+
+It will be helpful to 'simplify' the equation. For example, the following are all valid:
+
+1 and (0 or not 1 and 1)
+1 && (0 || !1 && 1)
+1 * (0 + !1 * 1)
+
+all of these are equivalent and can be simplified using a tokenizer friendly shorthand by:
+1 removing all whitespace
+2 replacing operators with their single character equivalents
+
+Carrying out these steps on any of the above examples will give:
+1*(0+!1*1)
+
+This will be useful as now all useable information is exactly one character long. THis will make T0KENIZING trivial.
+
+A TOKENIZER (or LEXER) will break an input expression into its smallest useable parts and retrieve them
+one at a time. In our case this just means iterating over all characters in the input string and returning
+the current character
+
+In this implementation, ach token has a TYPE and a LEXEME
+The LEXEME is the character of the input string corresponding with the token
+The TYPE gives more information about the token
+Token types can be as follows:
+
+BinaryConstant (0 or 1)
+UnaryOperator (!)
+BinaryOperator (*,+)
+OpenParenthesis('(')
+CloseParenthesis(')')
+ENDOFFILE
+
+PSEUDOCODE FOR TOKENIZER:
+
+PRECONDITION: Input string is formatted as above
+Set charIndex to 0
+
+when asked to advance:
+    return EOF Token if currentIndex >= input string length
+
+    get input string character at charIndex
+    store character as LEXEME
+    get TYPE by referencing character against types above
+    return a new token with (TYPE, LEXEME)
+

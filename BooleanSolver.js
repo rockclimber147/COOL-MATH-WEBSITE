@@ -88,7 +88,8 @@ class Tokenizer {
     advance() {
         // Return special value when end of input string reached
         if (this.stringIndex >= this.inputString.length) {
-            return null;
+            this.debugLog('End of token reached.')
+            return new Token('EOF', null);
         }
 
         let currentChar = this.inputString[this.stringIndex];
@@ -107,7 +108,7 @@ class Tokenizer {
         } else {
             throw new Error(`unknown symbol: ${currentChar} at position ${this.stringIndex}`);
         }
-        this.debugLog(`${currentChar}: ${tokenType}`);
+        // this.debugLog(`${currentChar}: ${tokenType}`);
 
         this.stringIndex++;
         return new Token(tokenType, currentChar)
@@ -140,6 +141,21 @@ class BinaryNode {
         } else {
             throw new Error(`BinaryNode contains unknown operator: ${this.operator}`)
         }
+    }
+    getHTML(indentCount) {
+        return `${'    '.repeat(indentCount)}<table>
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<th colspan="2">${this.operator}</th>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<td>
+        ${this.leftBranch.getHTML(indentCount + 3)}
+        ${'    '.repeat(indentCount + 2)}</td>
+        ${'    '.repeat(indentCount + 2)}<td>
+        ${this.rightBranch.getHTML(indentCount + 3)}
+        ${'    '.repeat(indentCount + 2)}</td>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount)}</table>`
     }
 }
 
@@ -186,12 +202,13 @@ class TerminalNode {
     evaluate() {
         return this.value;
     }
-    getHTML(indentCount){
+    getHTML(indentCount) {
         return `${'    '.repeat(indentCount)}${this.value}`
     }
 }
 
 class Parser {
+    debug = false;
     tokenizer;
     currentToken;
     operatorPrecedences = {
@@ -201,32 +218,104 @@ class Parser {
     tokenArray;
 
     constructor(expressionString, debug) {
+        this.debug = debug;
         // load tokenizer
         this.tokenizer = new Tokenizer(expressionString, debug);
+        // load first token
+        this.advance()
+    }
+
+    advance(expectedLexeme){
+        if (typeof expectedLexeme !== 'undefined'){
+            if (this.currentToken.lexeme != expectedLexeme){
+                throw new Error(`Unexpected symbol at index ${this.tokenizer.stringIndex} (expected:'${expectedLexeme}', received: '${this.currentToken.lexeme}'`)
+            }
+        }
+        this.currentToken = this.tokenizer.advance(); 
     }
     /**
      * 
      */
     parseExpression(previousPrecedence) {
+        // Token is already loaded, first term in a valid expression will never be a binary operator
+        let child = this.parseUnaryTerm();
+        if (this.currentToken.tokenType == 'EOF') { // return if 
+            return child;
+        }
+        let currentOperator = this.currentToken.lexeme;
+        this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
 
+        let currentPrecedence = this.operatorPrecedences[currentOperator]
+        this.debugLog(`Parser current precedence: ${currentPrecedence}`);
+
+        while (currentPrecedence != undefined){
+            if (currentPrecedence <= previousPrecedence){
+                break;
+            } else {
+                this.debugLog(`Parser current precedence greater than previous precedence`);
+                this.advance();
+                this.debugLog(`Parser current token from parseExpression: ${this.currentToken.lexeme}`);
+                child = this.parseBinaryTerm(currentOperator, child);
+                currentOperator = this.currentToken.lexeme;
+                this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
+                currentPrecedence = this.operatorPrecedences[currentOperator]
+                this.debugLog(`Parser current precedence: ${currentPrecedence}`);
+            }
+        }
+        return child;
+    }
+
+    parseBinaryTerm(currentOperator, leftChild){
+        let currentNode = new BinaryNode(currentOperator);
+        currentNode.leftBranch = leftChild;
+        currentNode.rightBranch = this.parseExpression(this.operatorPrecedences[currentOperator]);
+        return currentNode;
     }
 
     /**
-     * Implements the
+     * parses NOT until a binary value OR OPEN PARENTHESIS is encountered and returns a UnaryNode
      */
     parseUnaryTerm() {
-        this.currentToken = this.tokenizer.advance();
+        // Current Token is already set
+        this.debugLog(`current Token from parseUnaryTerm(): ${this.currentToken.lexeme}`)
+        let childNode;
+
         switch (this.currentToken.tokenType) {
             case 'unaryOperator': {
-                let childNode = new UnaryNode(this.currentToken.lexeme);
+                // make a child unaryNode
+                childNode = new UnaryNode(this.currentToken.lexeme);
+                // load token for unaryNode
+                this.advance()
+                // add results of recursive call to unary node
                 childNode.addChild(this.parseUnaryTerm());
-                return childNode;
+                break;
             } case 'binaryConstant': {
-                return new TerminalNode(this.currentToken.lexeme);
+                // end of branch reached, return terminalNode
+                childNode = new TerminalNode(this.currentToken.lexeme);
+                // advance to next token
+                this.advance();
+                break;
+            } case 'openParenthesis': {
+                // load first token of expression
+                this.advance('(')
+                // recursively call parseExpression with op porecedence of 0
+                childNode = this.parseExpression(0);
+                this.advance(')');
+                break;
             }
+            default: {
+                throw new Error(`Unexpected tokenType in unary term: ${this.currentToken.tokenType}`)
+            }
+        }
+        return childNode;
+    }
+
+
+    debugLog(input){
+        if (this.debugLog){
+            console.log(input);
         }
     }
 }
-
-let parser = new Parser('!!!!!!1', true);
-document.getElementById('test_div').innerHTML = parser.parseUnaryTerm().getHTML(0);
+let parser = new Parser('1+1*(1+1)', true);
+document.getElementById('test_div').innerHTML = parser.parseExpression(0).getHTML()
