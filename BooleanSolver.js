@@ -87,7 +87,7 @@ class Tokenizer {
 
     advance() {
         // Return special value when end of input string reached
-        if (this.stringIndex >= this.inputString.length){
+        if (this.stringIndex >= this.inputString.length) {
             return null;
         }
 
@@ -158,8 +158,20 @@ class UnaryNode {
         }
         return '1';
     }
-    addChild(node){
+    addChild(node) {
         this.child = node;
+    }
+    getHTML(indentCount) {
+        return `${'    '.repeat(indentCount)}<table>
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<th>${this.operator}</th>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<td>
+        ${this.child.getHTML(indentCount + 3)}
+        ${'    '.repeat(indentCount + 2)}</td>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount)}</table>`
     }
 }
 
@@ -173,6 +185,9 @@ class TerminalNode {
     }
     evaluate() {
         return this.value;
+    }
+    getHTML(indentCount){
+        return `${'    '.repeat(indentCount)}${this.value}`
     }
 }
 
@@ -192,16 +207,16 @@ class Parser {
     /**
      * 
      */
-    parseExpression(previousPrecedence){
+    parseExpression(previousPrecedence) {
 
     }
 
     /**
      * Implements the
      */
-    parseUnaryTerm(){
+    parseUnaryTerm() {
         this.currentToken = this.tokenizer.advance();
-        switch (this.currentToken.tokenType){
+        switch (this.currentToken.tokenType) {
             case 'unaryOperator': {
                 let childNode = new UnaryNode(this.currentToken.lexeme);
                 childNode.addChild(this.parseUnaryTerm());
@@ -214,4 +229,4 @@ class Parser {
 }
 
 let parser = new Parser('!!!!!!1', true);
-console.log(parser.parseUnaryTerm())
+document.getElementById('test_div').innerHTML = parser.parseUnaryTerm().getHTML(0);
