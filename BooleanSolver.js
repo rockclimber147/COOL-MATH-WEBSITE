@@ -61,7 +61,7 @@ class Token {
     tokenType;
     lexeme;
 
-    constructor (tokenType, lexeme){
+    constructor(tokenType, lexeme) {
         this.tokenType = tokenType;
         this.lexeme = lexeme;
     }
@@ -73,35 +73,40 @@ class Tokenizer {
     values = ['0', '1'];
     parentheses = ['(', ')'];
 
-    constructor (debug) {
+    inputString;
+    stringIndex = 0;
+
+    constructor(inputString, debug) {
+        this.inputString = inputString;
         this.debug = debug;
     }
 
-    tokenize(inputString){
-        let tokenArray = [];
-        for (let i = 0; i < inputString.length; i++){
-            let currentChar = inputString[i];
-            let tokenType;
-
-            if (currentChar == '!'){
-                tokenType = 'unaryOperator'
-            } else if (this.binaryOperators.includes(currentChar)){
-                tokenType = 'binaryOperator'
-            } else if (this.values.includes(currentChar)){
-                tokenType = 'binaryConstant'
-            } else if (this.parentheses.includes(currentChar)){
-                tokenType = 'parenthesis'
-            } else {
-                throw new Error(`unknown symbol: ${currentChar} at position ${i}`);
-            }
-            this.debugLog(`${currentChar}: ${tokenType}`);
-            tokenArray.push(new Token(tokenType, currentChar))
+    advance() {
+        // Return special value when end of input string reached
+        if (this.stringIndex >= this.inputString.length){
+            return null;
         }
-        return tokenArray;
+
+        let currentChar = this.inputString[this.stringIndex];
+        let tokenType;
+
+        if (currentChar == '!') {
+            tokenType = 'unaryOperator'
+        } else if (this.binaryOperators.includes(currentChar)) {
+            tokenType = 'binaryOperator'
+        } else if (this.values.includes(currentChar)) {
+            tokenType = 'binaryConstant'
+        } else if (this.parentheses.includes(currentChar)) {
+            tokenType = 'parenthesis'
+        } else {
+            throw new Error(`unknown symbol: ${currentChar} at position ${i}`);
+        }
+        this.debugLog(`${currentChar}: ${tokenType}`);
+        return new Token(tokenType, currentChar)
     }
 
-    debugLog(input){
-        if (this.debug){
+    debugLog(input) {
+        if (this.debug) {
             console.log(input);
         }
     }
@@ -112,16 +117,16 @@ class BinaryNode {
     leftBranch;
     rightBranch;
 
-    constructor (nodeValue){
+    constructor(nodeValue) {
         this.operator = nodeValue;
     }
     evaluate() {
-        if (this.operator == '+'){
-            if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1'){
+        if (this.operator == '+') {
+            if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1') {
                 return '1';
             }
-        } else if (this.operator == '*'){
-            if (this.leftBranch.evaluate() == '0' || this.rightBranch.evaluate() == '0'){
+        } else if (this.operator == '*') {
+            if (this.leftBranch.evaluate() == '0' || this.rightBranch.evaluate() == '0') {
                 return '0';
             }
         } else {
@@ -130,32 +135,32 @@ class BinaryNode {
     }
 }
 
-class UnaryNode{
+class UnaryNode {
     operator;
     child;
-    constructor (nodeValue){
-        if (nodeValue != '!'){
+    constructor(nodeValue) {
+        if (nodeValue != '!') {
             throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
         }
         this.nodeValue = nodeValue;
     }
     evaluate() {
-        if (this.value == '1'){
+        if (this.value == '1') {
             return '0';
         }
         return '1';
     }
 }
 
-class TerminalNode{
+class TerminalNode {
     value;
-    constructor(value){
-        if (value != '1' || value != '0'){
+    constructor(value) {
+        if (value != '1' || value != '0') {
             throw new Error(`TerminalNode contains illegal value: ${value}`)
         }
         this.value = value;
     }
-    evaluate(){
+    evaluate() {
         return this.value;
     }
 }
@@ -168,11 +173,8 @@ class Parser {
         '+': 1
     }
     tokenArray;
-    constructor(expressionString, debug){
+    constructor(expressionString, debug) {
         let tokenizer = new Tokenizer(debug);
         this.tokenArray = tokenizer.tokenize(expressionString);
     }
 }
-
-let tokenizer = new Tokenizer(true);
-console.log(tokenizer.tokenize('1*0+1*!(0+1)'));
