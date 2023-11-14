@@ -1,67 +1,3 @@
-/**
- * Language GRAMMAR:
- * 
- * expression = Term (op Term)? -> One or more terms separated by BINARY OPERATORS
- *  
- * Term = !* Value (1 or 0)     -> A value preceded by 0 or more unary operators
- *        ( Expression )        -> Another expression inside parentheses
- *        
- * Handling OPERATOR PRECEDENCE
- * 
- * parentheses () 4
- * Not          ! 3
- * And          * 2
- * Or           + 1
- * 
- * Parenthses > Not > And > Or
- * 
- * Operators of greater or equal precedence of the next operator are evaluated from LEFT TO RIGHT
- * 
- * A and B or c
- *    +
- *   / \
- *   *  C
- *  / \
- * A   B
- * 
- * A or B or C
- *     +
- *    / \
- *   +   C
- *  / \ 
- * A   B
- * 
- * When evaluating left to right: A+B+C+D => (((A+B)+C)+D)
- * 
- * 
- * When the next operator has a higher precedence:
- * A or B and C
- *    +
- *   / \
- *  A   *
- *     / \
- *    B   C
- * 
- * COLORING EXPRESSIONS:
- * 
- * Example expression:
- * 1+0*(1*!0+1)
- * 1+
- *   0*
- *     (1*!0+1)
- */
-
-
-/*
-OPERATOR PRECEDENCES:
-
-parentheses () 4
-Not          ! 3
-And          * 2
-Or           + 1
-
-*/
-
 class Token {
     tokenType;
     lexeme;
@@ -145,7 +81,7 @@ class BinaryNode {
     getHTML(indentCount) {
         return `${'    '.repeat(indentCount)}<table>
         ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th colspan="2">${this.operator}</th>
+        ${'    '.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<td>
@@ -180,7 +116,7 @@ class UnaryNode {
     getHTML(indentCount) {
         return `${'    '.repeat(indentCount)}<table>
         ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th>${this.operator}</th>
+        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<td>
@@ -203,7 +139,7 @@ class TerminalNode {
         return this.value;
     }
     getHTML(indentCount) {
-        return `${'    '.repeat(indentCount)}${this.value}`
+        return `${'    '.repeat(indentCount)}<span class="constant">${this.value}</span>`
     }
 }
 
@@ -298,7 +234,7 @@ class Parser {
             } case 'openParenthesis': {
                 // load first token of expression
                 this.advance('(')
-                // recursively call parseExpression with op porecedence of 0
+                // recursively call parseExpression with op precedence of 0
                 childNode = this.parseExpression(0);
                 this.advance(')');
                 break;
@@ -317,5 +253,7 @@ class Parser {
         }
     }
 }
-let parser = new Parser('1+1*(1+1)', true);
-document.getElementById('test_div').innerHTML = parser.parseExpression(0).getHTML()
+let parser = new Parser('(!1+!1*!1)', true);
+let htmlString = parser.parseExpression(0).getHTML(0)
+document.getElementById('test_div').innerHTML = htmlString;
+console.log(htmlString)

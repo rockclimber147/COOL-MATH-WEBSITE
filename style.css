@@ -8,10 +8,21 @@
     text-decoration: overline;
 }
 
-tr:hover{
-    background-color: grey;
+/* table, tr, td, th {
+    margin:0px;
+    padding:0px;
+} */
+
+
+
+.operator {
+    background-color: green;
+    padding-left: auto;
+    padding-right: auto;
 }
 
-table {
-    border: solid black 1px;
+.constant {
+    padding:5px;
+    background-color: blue;
+    border-radius: 100%;
 }

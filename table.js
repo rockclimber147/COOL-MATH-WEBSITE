@@ -2,9 +2,9 @@ class TruthTable {
 
     varNames;
     tableInputs = [];
-    tableMinTerms = []
-    tableMaxTerms = []
-    tableFunctions = {'functionNames':[]}
+    tableMinTerms = [];
+    tableMaxTerms = [];
+    tableFunctions = {'functionNames':[]};
 
     constructor(varNameArray) {
         this.varNames = varNameArray;
@@ -104,15 +104,16 @@ class TruthTable {
         return maxTermString.slice(0, maxTermString.length - 1)
     }
 
-    getTableHTML() {                                                  //TODO make functions display with new dictionary structure
+    getTableHTML() {
+        // Table Header
         let tableHTML = '<table>\n';
         tableHTML += '<tr>\n'
         for (let i = 0; i < this.varNames.length; i++) {
             tableHTML += `<th>${this.varNames[i]}</th>\n`
         }
-        if (this.tableFunctions.length > 0){
-            for (let i = 0; i < this.tableFunctions.length; i++){
-                tableHTML += `<th>${this.tableFunctions[i][0]}</th>`
+        if (this.tableFunctions['functionNames'].length > 0){
+            for (let i = 0; i < this.tableFunctions['functionNames'].length; i++){
+                tableHTML += `<th>${this.tableFunctions['functionNames'][i]}</th>`
             }
         }
         if (this.tableMinTerms.length != 0) {
@@ -122,14 +123,16 @@ class TruthTable {
             tableHTML += '<th>Max</th>';
         }
         tableHTML += '</tr>\n'
+        // Table Body
         for (let i = 0; i < this.tableInputs.length; i++) {
             tableHTML += '<tr>\n'
             for (let j = 0; j < this.tableInputs[i].length; j++) {
                 tableHTML += `<td>${this.tableInputs[i][j]}</td>\n`
             }
-            if (this.tableFunctions.length != 0){
-                for (let j = 0; j < this.tableFunctions.length; j++){
-                    tableHTML += `<td>${this.tableFunctions[j][i + 1]}</td>\n`
+            if (this.tableFunctions['functionNames'].length != 0){
+                let functionNameArray = this.tableFunctions['functionNames'];
+                for (let j = 0; j < functionNameArray.length; j++){
+                    tableHTML += `<td>${this.tableFunctions[functionNameArray[j]][i]}</td>\n`
                 }
             }
             if (this.tableMinTerms.length != 0) {

@@ -52,3 +52,67 @@ when asked to advance:
     get TYPE by referencing character against types above
     return a new token with (TYPE, LEXEME)
 
+
+/**
+ * Language GRAMMAR:
+ * 
+ * expression = Term (op Term)? -> One or more terms separated by BINARY OPERATORS
+ *  
+ * Term = !* Value (1 or 0)     -> A value preceded by 0 or more unary operators
+ *        ( Expression )        -> Another expression inside parentheses
+ *        
+ * Handling OPERATOR PRECEDENCE
+ * 
+ * parentheses () 4
+ * Not          ! 3
+ * And          * 2
+ * Or           + 1
+ * 
+ * Parenthses > Not > And > Or
+ * 
+ * Operators of greater or equal precedence of the next operator are evaluated from LEFT TO RIGHT
+ * 
+ * A and B or c
+ *    +
+ *   / \
+ *   *  C
+ *  / \
+ * A   B
+ * 
+ * A or B or C
+ *     +
+ *    / \
+ *   +   C
+ *  / \ 
+ * A   B
+ * 
+ * When evaluating left to right: A+B+C+D => (((A+B)+C)+D)
+ * 
+ * 
+ * When the next operator has a higher precedence:
+ * A or B and C
+ *    +
+ *   / \
+ *  A   *
+ *     / \
+ *    B   C
+ * 
+ * COLORING EXPRESSIONS:
+ * 
+ * Example expression:
+ * 1+0*(1*!0+1)
+ * 1+
+ *   0*
+ *     (1*!0+1)
+ */
+
+
+/*
+OPERATOR PRECEDENCES:
+
+parentheses () 4
+Not          ! 3
+And          * 2
+Or           + 1
+
+*/
