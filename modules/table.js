@@ -166,13 +166,4 @@ class TruthTable {
     }
 }
 
-table = new TruthTable(['a', 'b', 'c'])
-table.addMinTerm()
-table.addMaxTerm()
-console.log('adding function a&&b')
-table.addFunction('a&&b')
-console.log(table.getTableHTML())
-console.log(table.getMinTermsOfFunction('a&&b'))
-document.getElementById('test_div').innerHTML += table.getTableHTML()
-document.getElementById('test_div').innerHTML += `<div>MinTerms of f(0): ${table.getMinTermsOfFunction('a&&b')}</div>`
-document.getElementById('test_div').innerHTML += `<div>MaxTerms of f(0): ${table.getMaxTermsOfFunction('a&&b')}</div>`
+export {Table}
