@@ -11,7 +11,7 @@ class Token {
 class Tokenizer {
     debug = false;
     binaryOperators = ['*', '+'];
-    values = ['0', '1'];
+    binaryValues = ['0', '1'];
 
     inputString;
     stringIndex = 0;
@@ -35,21 +35,34 @@ class Tokenizer {
             tokenType = 'unaryOperator';
         } else if (this.binaryOperators.includes(currentChar)) {
             tokenType = 'binaryOperator';
-        } else if (this.values.includes(currentChar)) {
+        } else if (this.binaryValues.includes(currentChar)) {
             tokenType = 'binaryConstant';
         } else if (currentChar == '(') {
             tokenType = 'openParenthesis';
         } else if (currentChar == ')') {
             tokenType = 'closeParenthesis';
+        } else if ((currentChar >= '2' && currentChar <= '9')){
+            this.stringIndex++;
+            throw new Error(`Invalid symbol: ${currentChar}${this.getTokenPointerString()}`)
         } else if (currentChar.length == 1) {
             tokenType = 'identifier';
         } else {
-            throw new Error(`unknown symbol: ${currentChar} at position ${this.stringIndex}`);
+            this.stringIndex++;
+            throw new Error(`unknown symbol: ${currentChar} at position ${this.stringIndex}${this.getTokenPointerString()}`);
         }
         // this.debugLog(`${currentChar}: ${tokenType}`);
 
         this.stringIndex++;
         return new Token(tokenType, currentChar)
+    }
+
+    getTokenPointerString() {
+        let paddingLeft = this.stringIndex - 1;
+        let paddingRight = this.inputString.length - paddingLeft - 1;
+        console.log(`Token pointer: pLeft:${paddingLeft} pRight:${paddingRight}`)
+        let errorString = `<br>${this.inputString}<br>${'&#160'.repeat(paddingLeft)}^${'&#160'.repeat(paddingRight)}<br>`
+        console.log(errorString)
+        return errorString
     }
 
     debugLog(input) {
@@ -145,21 +158,21 @@ class TerminalNode {
 }
 
 class Parser {
-    expressionString;
     debug = false;
+
     tokenizer;
     currentToken;
     tree;
+
     operatorPrecedences = {
         '*': 2,
         '+': 1
     }
 
     constructor(expressionString, debug) {
-        this.expressionString = expressionString;
         this.debug = debug;
         // load tokenizer
-        this.tokenizer = new Tokenizer(this.expressionString, debug);
+        this.tokenizer = new Tokenizer(expressionString, debug);
         // load first token
         this.advance()
     }
@@ -185,6 +198,7 @@ class Parser {
     constructAST(){
         this.tree = this.parseExpression(0);
     }
+
     parseExpression(previousPrecedence) {
         // Token is already loaded, first term in a valid expression will never be a binary operator
         let child = this.parseUnaryTerm();
@@ -269,22 +283,15 @@ class Parser {
     }
 
     throwSyntaxErrorTypeExpected(expectedType){
-        throw new Error(`Unexpected token: ${this.currentToken.lexeme} ${this.getTokenPointerString()} Expected type: ${expectedType}, Received: ${this.currentToken.tokenType}`)
-    }
-    throwSyntaxErrorSymbolExpected(expectedSymbol) {
-        throw new Error(`Unexpected symbol: ${this.currentToken.lexeme} ${this.getTokenPointerString()} Expected: ${expectedSymbol}`)
-    }
-    throwSyntaxErrorGeneric(){
-        throw new Error(`Syntax Error:${this.getTokenPointerString()}`)
+        throw new Error(`Unexpected token: ${this.currentToken.lexeme} ${this.tokenizer.getTokenPointerString()} Expected type: ${expectedType}, Received: ${this.currentToken.tokenType}`)
     }
 
-    getTokenPointerString(){
-        let paddingLeft = this.tokenizer.stringIndex - 1;
-        let paddingRight = this.expressionString.length - paddingLeft - 1;
-        console.log(`Token pointer: pLeft:${paddingLeft} pRight:${paddingRight}`)
-        let errorString = `<br>${this.expressionString}<br>${'&#160'.repeat(paddingLeft)}^${'&#160'.repeat(paddingRight)}<br>`
-        console.log(errorString)
-        return errorString
+    throwSyntaxErrorSymbolExpected(expectedSymbol) {
+        throw new Error(`Unexpected symbol: ${this.currentToken.lexeme} ${this.tokenizer.getTokenPointerString()} Expected: ${expectedSymbol}`)
+    }
+
+    throwSyntaxErrorGeneric(){
+        throw new Error(`Syntax Error:${this.tokenizer.getTokenPointerString()}`)
     }
 
     debugLog(input){
