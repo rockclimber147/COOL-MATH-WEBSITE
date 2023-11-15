@@ -148,6 +148,7 @@ class Parser {
     debug = false;
     tokenizer;
     currentToken;
+    tree;
     operatorPrecedences = {
         '*': 2,
         '+': 1
@@ -161,17 +162,27 @@ class Parser {
         this.advance()
     }
 
-    advance(expectedLexeme){
-        if (typeof expectedLexeme !== 'undefined'){
-            if (this.currentToken.lexeme != expectedLexeme){
-                throw new Error(`Unexpected symbol at index ${this.tokenizer.stringIndex} (expected:'${expectedLexeme}', received: '${this.currentToken.lexeme}'`)
-            }
+    advanceGivenLexeme(expectedLexeme){
+        if (this.currentToken.lexeme != expectedLexeme) {
+            throw new Error(`Unexpected symbol at index ${this.tokenizer.stringIndex} (expected:'${expectedLexeme}', received: '${this.currentToken.lexeme}'`)
         }
         this.currentToken = this.tokenizer.advance(); 
     }
-    /**
-     * 
-     */
+
+    advanceGivenType(expectedType){
+        if (this.currentToken.tokenType != expectedType) {
+            throw new Error(`Unexpected type at index ${this.tokenizer.stringIndex} (expected:'${expectedType}', received: '${this.currentToken.tokenType}'`)
+        }
+        this.currentToken = this.tokenizer.advance();
+    }
+
+    advance(){
+        this.currentToken = this.tokenizer.advance(); 
+    }
+
+    constructAST(){
+        this.tree = this.parseExpression(0);
+    }
     parseExpression(previousPrecedence) {
         // Token is already loaded, first term in a valid expression will never be a binary operator
         let child = this.parseUnaryTerm();
@@ -239,10 +250,10 @@ class Parser {
                 break;
             } case 'openParenthesis': {
                 // load first token of expression
-                this.advance('(')
+                this.advanceGivenLexeme('(')
                 // recursively call parseExpression with op precedence of 0
                 childNode = this.parseExpression(0);
-                this.advance(')');
+                this.advanceGivenLexeme(')');
                 break;
             }
             default: {
