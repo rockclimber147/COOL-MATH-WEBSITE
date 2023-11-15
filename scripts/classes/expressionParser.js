@@ -41,6 +41,8 @@ class Tokenizer {
             tokenType = 'openParenthesis';
         } else if (currentChar == ')') {
             tokenType = 'closeParenthesis';
+        } else if (currentChar.length == 1) {
+            tokenType = 'identifier';
         } else {
             throw new Error(`unknown symbol: ${currentChar} at position ${this.stringIndex}`);
         }
@@ -86,10 +88,10 @@ class BinaryNode {
         ${'    '.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<td>
+        ${'    '.repeat(indentCount + 2)}<td valign="top">
         ${this.leftBranch.getHTML(indentCount + 3)}
         ${'    '.repeat(indentCount + 2)}</td>
-        ${'    '.repeat(indentCount + 2)}<td>
+        ${'    '.repeat(indentCount + 2)}<td valign="top">
         ${this.rightBranch.getHTML(indentCount + 3)}
         ${'    '.repeat(indentCount + 2)}</td>
         ${'    '.repeat(indentCount + 1)}</tr>
@@ -121,7 +123,7 @@ class UnaryNode {
         ${'    '.repeat(indentCount + 2)}<th class="operator">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<td>
+        ${'    '.repeat(indentCount + 2)}<td valign="top">
         ${this.child.getHTML(indentCount + 3)}
         ${'    '.repeat(indentCount + 2)}</td>
         ${'    '.repeat(indentCount + 1)}</tr>
@@ -132,9 +134,6 @@ class UnaryNode {
 class TerminalNode {
     value;
     constructor(value) {
-        if (value != '1' && value != '0') {
-            throw new Error(`TerminalNode contains illegal value: ${value}`)
-        }
         this.value = value;
     }
     evaluate() {
@@ -153,7 +152,6 @@ class Parser {
         '*': 2,
         '+': 1
     }
-    tokenArray;
 
     constructor(expressionString, debug) {
         this.debug = debug;
@@ -228,6 +226,12 @@ class Parser {
                 childNode.addChild(this.parseUnaryTerm());
                 break;
             } case 'binaryConstant': {
+                // end of branch reached, return terminalNode
+                childNode = new TerminalNode(this.currentToken.lexeme);
+                // advance to next token
+                this.advance();
+                break;
+            } case 'identifier': {
                 // end of branch reached, return terminalNode
                 childNode = new TerminalNode(this.currentToken.lexeme);
                 // advance to next token

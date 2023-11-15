@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Extra Credit</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <script type="module" src='./modules/extraCredit.js'></script>
+    <div>
+        <label for="inputExpression">Enter a boolean expression (No keywords, only 1 and 0)</label>
+    </div>
+    <input id="inputExpression" type="text">
+    <button id="inputExpressionButton">Make AST!</button>
+    <script type="module" src='./scripts/extraCredit.js'></script>
+    <div id="treeContainer">
+
+    </div>
 </body>
+
 </html>
