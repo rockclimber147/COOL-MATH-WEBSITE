@@ -16,13 +16,18 @@
 
 
 .operator {
+    border-top-right-radius: 50%;
+    border-top-left-radius: 50%;
     background-color: green;
     padding-left: auto;
     padding-right: auto;
 }
 
 .constant {
-    padding:5px;
+    text-align:center;
+    display:inline-block;
+    width:20px;
+    height:20px;
     background-color: blue;
-    border-radius: 100%;
+    border-radius: 50%;
 }

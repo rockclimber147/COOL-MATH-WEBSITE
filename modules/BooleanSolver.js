@@ -70,16 +70,18 @@ class BinaryNode {
             if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1') {
                 return '1';
             }
+            return '0'
         } else if (this.operator == '*') {
             if (this.leftBranch.evaluate() == '0' || this.rightBranch.evaluate() == '0') {
                 return '0';
             }
+            return '1';
         } else {
             throw new Error(`BinaryNode contains unknown operator: ${this.operator}`)
         }
     }
     getHTML(indentCount) {
-        return `${'    '.repeat(indentCount)}<table>
+        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
@@ -105,7 +107,7 @@ class UnaryNode {
         this.operator = nodeValue;
     }
     evaluate() {
-        if (this.value == '1') {
+        if (this.child.evaluate() == '1') {
             return '0';
         }
         return '1';
@@ -114,7 +116,7 @@ class UnaryNode {
         this.child = node;
     }
     getHTML(indentCount) {
-        return `${'    '.repeat(indentCount)}<table>
+        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<th class="operator">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
@@ -253,7 +255,5 @@ class Parser {
         }
     }
 }
-let parser = new Parser('(!1+!1*!1)', true);
-let htmlString = parser.parseExpression(0).getHTML(0)
-document.getElementById('test_div').innerHTML = htmlString;
-console.log(htmlString)
+
+export {Parser}
