@@ -145,6 +145,7 @@ class TerminalNode {
 }
 
 class Parser {
+    expressionString;
     debug = false;
     tokenizer;
     currentToken;
@@ -155,9 +156,10 @@ class Parser {
     }
 
     constructor(expressionString, debug) {
+        this.expressionString = expressionString;
         this.debug = debug;
         // load tokenizer
-        this.tokenizer = new Tokenizer(expressionString, debug);
+        this.tokenizer = new Tokenizer(this.expressionString, debug);
         // load first token
         this.advance()
     }
@@ -186,8 +188,13 @@ class Parser {
     parseExpression(previousPrecedence) {
         // Token is already loaded, first term in a valid expression will never be a binary operator
         let child = this.parseUnaryTerm();
-        if (this.currentToken.tokenType == 'EOF') { // return if 
+
+        if (this.currentToken.tokenType == 'EOF' || this.currentToken.lexeme == ')') {
             return child;
+        }
+
+        if (this.currentToken.tokenType != 'binaryOperator'){
+            this.throwSyntaxErrorTypeExpected('binaryOperator');
         }
         let currentOperator = this.currentToken.lexeme;
         this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
@@ -204,6 +211,7 @@ class Parser {
                 this.debugLog(`Parser current token from parseExpression: ${this.currentToken.lexeme}`);
                 child = this.parseBinaryTerm(currentOperator, child);
                 currentOperator = this.currentToken.lexeme;
+
                 this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
                 currentPrecedence = this.operatorPrecedences[currentOperator]
                 this.debugLog(`Parser current precedence: ${currentPrecedence}`);
@@ -219,9 +227,6 @@ class Parser {
         return currentNode;
     }
 
-    /**
-     * parses NOT until a binary value OR OPEN PARENTHESIS is encountered and returns a UnaryNode
-     */
     parseUnaryTerm() {
         // Current Token is already set
         this.debugLog(`current Token from parseUnaryTerm(): ${this.currentToken.lexeme}`)
@@ -257,12 +262,30 @@ class Parser {
                 break;
             }
             default: {
-                throw new Error(`Unexpected tokenType in unary term: ${this.currentToken.tokenType}`)
+                this.throwSyntaxErrorGeneric();
             }
         }
         return childNode;
     }
 
+    throwSyntaxErrorTypeExpected(expectedType){
+        throw new Error(`Unexpected token: ${this.currentToken.lexeme} ${this.getTokenPointerString()} Expected type: ${expectedType}, Received: ${this.currentToken.tokenType}`)
+    }
+    throwSyntaxErrorSymbolExpected(expectedSymbol) {
+        throw new Error(`Unexpected symbol: ${this.currentToken.lexeme} ${this.getTokenPointerString()} Expected: ${expectedSymbol}`)
+    }
+    throwSyntaxErrorGeneric(){
+        throw new Error(`Syntax Error:${this.getTokenPointerString()}`)
+    }
+
+    getTokenPointerString(){
+        let paddingLeft = this.tokenizer.stringIndex - 1;
+        let paddingRight = this.expressionString.length - paddingLeft - 1;
+        console.log(`Token pointer: pLeft:${paddingLeft} pRight:${paddingRight}`)
+        let errorString = `<br>${this.expressionString}<br>${'&#160'.repeat(paddingLeft)}^${'&#160'.repeat(paddingRight)}<br>`
+        console.log(errorString)
+        return errorString
+    }
 
     debugLog(input){
         if (this.debugLog){
