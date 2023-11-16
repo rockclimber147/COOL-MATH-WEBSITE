@@ -3,12 +3,14 @@ import {Parser} from './classes/expressionParser.js';
 document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     let expression = document.getElementById('inputExpression').value
     console.log(expression)
+    let parser = new Parser(expression);
+    let resultHTML;
     try {
-        let parser = new Parser(expression);
         parser.constructAST()
-        let parserHTML = parser.tree.getHTML(0, '  ');
-        document.getElementById('treeContainer').innerHTML = parserHTML;
+        resultHTML = parser.tree.getHTML(0, '  ');
     } catch (err) {
-        document.getElementById("treeContainer").innerHTML = err.message;
+        resultHTML = err.message;
+    } finally {
+        document.getElementById('treeContainer').innerHTML = resultHTML;
     }
 })
