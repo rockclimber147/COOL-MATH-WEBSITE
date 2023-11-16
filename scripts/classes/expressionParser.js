@@ -179,14 +179,14 @@ class Parser {
 
     advanceGivenLexeme(expectedLexeme){
         if (this.currentToken.lexeme != expectedLexeme) {
-            throw new Error(`Unexpected symbol at index ${this.tokenizer.stringIndex} (expected:'${expectedLexeme}', received: '${this.currentToken.lexeme}'`)
+           this.throwSyntaxErrorSymbolExpected(expectedLexeme)
         }
         this.currentToken = this.tokenizer.advance(); 
     }
 
     advanceGivenType(expectedType){
         if (this.currentToken.tokenType != expectedType) {
-            throw new Error(`Unexpected type at index ${this.tokenizer.stringIndex} (expected:'${expectedType}', received: '${this.currentToken.tokenType}'`)
+            this.throwSyntaxErrorTypeExpected(expectedType);
         }
         this.currentToken = this.tokenizer.advance();
     }
@@ -220,15 +220,11 @@ class Parser {
             if (currentPrecedence <= previousPrecedence){
                 break;
             } else {
-                this.debugLog(`Parser current precedence greater than previous precedence`);
                 this.advance();
-                this.debugLog(`Parser current token from parseExpression: ${this.currentToken.lexeme}`);
                 child = this.parseBinaryTerm(currentOperator, child);
                 currentOperator = this.currentToken.lexeme;
 
-                this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
                 currentPrecedence = this.operatorPrecedences[currentOperator]
-                this.debugLog(`Parser current precedence: ${currentPrecedence}`);
             }
         }
         return child;
