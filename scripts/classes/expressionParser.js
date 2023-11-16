@@ -3,9 +3,6 @@
  * Describes a token
  */
 class Token {
-    /**
-     * Describes a token
-     */
 
     tokenType;
     lexeme;
@@ -326,24 +323,21 @@ class Parser {
      * Constructs an abstract syntax tree and stores it as an instance variable
      */
     constructAST() {
-        this.tree = this.parseExpression(0);
+        this.tree = this.parseExpression(0, 'main');
     }
 
     /**
      * Recursively parses Tokens and constructs an abstract syntax tree
      * @param {number} previousPrecedence the operator precedence value to start at
+     * @param {string} callingFunction tracks calling function
      * @returns A UnaryNode or BinaryNode
      */
-    parseExpression(previousPrecedence) {
+    parseExpression(previousPrecedence, callingFunction) {
         // Token is already loaded, first term in a valid expression will never be a binary operator
         let child = this.parseUnaryTerm();
 
-        if (this.currentToken.tokenType == 'EOF' || this.currentToken.lexeme == ')') {
+        if (this.currentToken.tokenType == 'EOF') {
             return child;
-        }
-
-        if (this.currentToken.tokenType != 'binaryOperator') {
-            this.throwSyntaxErrorTypeExpected('binaryOperator');
         }
         let currentOperator = this.currentToken.lexeme;
         this.debugLog(`Parser current token from parseExpression: ${currentOperator}`);
@@ -351,7 +345,7 @@ class Parser {
         let currentPrecedence = this.operatorPrecedences[currentOperator]
         this.debugLog(`Parser current precedence: ${currentPrecedence}`);
 
-        while (currentPrecedence != undefined) {
+        while (currentPrecedence != undefined) { // Defined precedences mean the operator is a valid operator
             if (currentPrecedence <= previousPrecedence) {
                 break;
             } else {
@@ -362,19 +356,25 @@ class Parser {
                 currentPrecedence = this.operatorPrecedences[currentOperator]
             }
         }
+
+        // initial call should ONLY terminate with 'EOF' token
+        if (callingFunction == 'main' && this.currentToken.tokenType != 'EOF'){
+            this.throwSyntaxErrorTypeExpected('binaryOperator');
+        }
+
         return child;
     }
 
     /**
      * Parses a binary term
      * @param {string} currentOperator The current operator
-     * @param {BinaryNode, UnaryNode} leftChild Part of an abstract sybtax tree
+     * @param {BinaryNode, UnaryNode} leftChild Part of an abstract syntax tree
      * @returns A BinaryNode
      */
     parseBinaryTerm(currentOperator, leftChild) {
         let currentNode = new BinaryNode(currentOperator);
         currentNode.leftBranch = leftChild;
-        currentNode.rightBranch = this.parseExpression(this.operatorPrecedences[currentOperator]);
+        currentNode.rightBranch = this.parseExpression(this.operatorPrecedences[currentOperator], 'parseBinary');
         return currentNode;
     }
 
@@ -412,7 +412,7 @@ class Parser {
                 // load first token of expression
                 this.advanceGivenLexeme('(')
                 // recursively call parseExpression with op precedence of 0
-                childNode = this.parseExpression(0);
+                childNode = this.parseExpression(0, 'parseUnary');
                 this.advanceGivenLexeme(')');
                 break;
             }
@@ -447,7 +447,7 @@ class Parser {
     }
 
     /**
-     * Log message when debugmode is true
+     * Log message when debugMode is true
      * @param {string} message Message to log
      */
     debugLog(message) {
