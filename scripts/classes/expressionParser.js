@@ -3,6 +3,10 @@
  * Describes a token
  */
 class Token {
+    /**
+     * Describes a token
+     */
+
     tokenType;
     lexeme;
 
@@ -62,7 +66,7 @@ class Tokenizer {
             tokenType = 'openParenthesis';
         } else if (currentChar == ')') {
             tokenType = 'closeParenthesis';
-        } else if ((currentChar >= '2' && currentChar <= '9')){
+        } else if ((currentChar >= '2' && currentChar <= '9')) {
             this.stringIndex++;
             throw new Error(`Invalid symbol: ${currentChar}${this.getTokenPointerString()}`)
         } else if (currentChar.length == 1) {
@@ -93,22 +97,71 @@ class Tokenizer {
      * Log message when debugmode is true
      * @param {string} message Message to log
      */
-    debugLog(message){
-        if (this.debugLog){
+    debugLog(message) {
+        if (this.debugLog) {
             console.log(message);
         }
     }
 }
 
 /**
+ * A Node object that holds a value and a reference to the parent Parser instance.
+ */
+class TerminalNode {
+    nodeValue;
+    parser;
+
+    /**
+     * Constructs a TerminalNode instance
+     * @param {string} nodeValue The value to store
+     * @param {Parser} parser A reference to the PArser instance that created this Node
+     */
+    constructor(nodeValue, parser) {
+        this.nodeValue = nodeValue;
+        this.parser = parser;
+    }
+
+    /**
+     * Returns the stored value or symbol value given the symbol table of the parent Parser instance
+     * @returns A number
+     */
+    evaluate() {
+        let returnValue;
+        switch (this.nodevalue) {
+            case '1': {
+                returnValue = '1';
+                break;
+            } case '0': {
+                returnValue = '0';
+                break;
+            } default: {
+                returnValue = this.parser.symbolTable[this.nodeValue];
+                break;
+            }
+        }
+        if (returnValue === undefined) {
+            throw new Error(`Runtime Error: ${this.nodeValue} is not defined`)
+        }
+        return returnValue;
+    }
+
+    /**
+     * Recursively constructs an HYML table string of itself and all child nodes
+     * @param {number} indentCount The amount of times to indent
+     * @param {number} padding The type of padding to indent with
+     * @returns a string representing an HTML table
+     */
+    getHTML(indentCount, padding) {
+        return `${padding.repeat(indentCount)}<span class="constant">${this.nodeValue}</span>`
+    }
+}
+
+/**
  * Represents a binary operation in an abstract syntax tree
  */
-class BinaryNode {
-    operator;
+class BinaryNode extends TerminalNode {
     leftBranch;
     rightBranch;
-
-    parser;
 
     /**
      * Construct a BinaryNode instance with a reference to the parent Parser instance
@@ -116,8 +169,7 @@ class BinaryNode {
      * @param {Parser} parser The parent Parser instance
      */
     constructor(nodeValue, parser) {
-        this.operator = nodeValue;
-        this.parser = parser;
+        super(nodeValue, parser)
     }
 
     /**
@@ -125,18 +177,18 @@ class BinaryNode {
      * @returns A string representing the result of the evaluation
      */
     evaluate() {
-        if (this.operator == '+') {
+        if (this.nodeValue == '+') {
             if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1') {
                 return '1';
             }
             return '0'
-        } else if (this.operator == '*') {
+        } else if (this.nodeValue == '*') {
             if (this.leftBranch.evaluate() == '0' || this.rightBranch.evaluate() == '0') {
                 return '0';
             }
             return '1';
         } else {
-            throw new Error(`BinaryNode contains unknown operator: ${this.operator}`)
+            throw new Error(`BinaryNode contains unknown operator: ${this.nodeValue}`)
         }
     }
 
@@ -149,7 +201,7 @@ class BinaryNode {
     getHTML(indentCount, padding) {
         return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${padding.repeat(indentCount + 1)}<tr>
-        ${padding.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
+        ${padding.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.nodeValue}</th>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount + 1)}<tr>
         ${padding.repeat(indentCount + 2)}<td valign="top">
@@ -163,11 +215,11 @@ class BinaryNode {
     }
 }
 
-class UnaryNode {
-    operator;
+/**
+ * Represents a unary operation in an abstract syntax tree
+ */
+class UnaryNode extends TerminalNode{
     child;
-
-    parser;
 
     /**
      * Constructs an instanc of a UnaryNode
@@ -175,11 +227,10 @@ class UnaryNode {
      * @param {Parser} parser A reference to the parent Parser instance
      */
     constructor(nodeValue, parser) {
+        super(nodeValue, parser)
         if (nodeValue != '!') {
             throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
         }
-        this.operator = nodeValue;
-        this.parser = parser;
     }
 
     /**
@@ -196,13 +247,13 @@ class UnaryNode {
     /**
      * Recursively constructs an HYML table string of itself and all child nodes
      * @param {number} indentCount The amount of times to indent
-     * @param {number} padding The type of padding to indent with
+     * @param {string} padding The type of padding to indent with
      * @returns a string representing an HTML table
      */
     getHTML(indentCount, padding) {
         return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.operator}</th>
+        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<td valign="top">
@@ -213,51 +264,10 @@ class UnaryNode {
     }
 }
 
-class TerminalNode {
-    value;
 
-    parser;
-
-    constructor(value, parser) {
-        this.value = value;
-        this.parser = parser;
-    }
-
-    /**
-     * Returns the stored value or symbol value given the symbol table of the parent Parser instance
-     * @returns A number
-     */
-    evaluate() {
-        let returnValue;
-        switch (this.value){
-            case '1': {
-                returnValue = '1';
-                break;
-            } case '0': {
-                returnValue = '0';
-                break;
-            } default: {
-                returnValue = this.parser.symbolTable[this.value];
-                break;
-            }
-        }
-        if (returnValue === undefined){
-            throw new Error(`Runtime Error: ${this.value} is not defined`)
-        }
-        return returnValue;
-    }
-
-    /**
-     * Recursively constructs an HYML table string of itself and all child nodes
-     * @param {number} indentCount The amount of times to indent
-     * @param {number} padding The type of padding to indent with
-     * @returns a string representing an HTML table
-     */
-    getHTML(indentCount, padding) {
-        return `${padding.repeat(indentCount)}<span class="constant">${this.value}</span>`
-    }
-}
-
+/**
+ * Contains the functionality necessary to parse an expression string and construct an abstract syntax tree
+ */
 class Parser {
     debug = false;
 
@@ -287,18 +297,18 @@ class Parser {
      * Verifies the current token lexeme and advances the stored Tokenizer instance
      * @param {string} expectedLexeme the lexeme of the current Token instance to check
      */
-    advanceGivenLexeme(expectedLexeme){
+    advanceGivenLexeme(expectedLexeme) {
         if (this.currentToken.lexeme != expectedLexeme) {
-           this.throwSyntaxErrorSymbolExpected(expectedLexeme)
+            this.throwSyntaxErrorSymbolExpected(expectedLexeme)
         }
-        this.currentToken = this.tokenizer.advance(); 
+        this.currentToken = this.tokenizer.advance();
     }
 
     /**
      * Verifies the current token type and advances the stored Tokenizer instance
      * @param {*} expectedType the tokenType of the current Token instance to check
      */
-    advanceGivenType(expectedType){
+    advanceGivenType(expectedType) {
         if (this.currentToken.tokenType != expectedType) {
             this.throwSyntaxErrorTypeExpected(expectedType);
         }
@@ -308,14 +318,14 @@ class Parser {
     /**
      * Advances the stored Tokenizer instance
      */
-    advance(){
-        this.currentToken = this.tokenizer.advance(); 
+    advance() {
+        this.currentToken = this.tokenizer.advance();
     }
 
     /**
      * Constructs an abstract syntax tree and stores it as an instance variable
      */
-    constructAST(){
+    constructAST() {
         this.tree = this.parseExpression(0);
     }
 
@@ -332,7 +342,7 @@ class Parser {
             return child;
         }
 
-        if (this.currentToken.tokenType != 'binaryOperator'){
+        if (this.currentToken.tokenType != 'binaryOperator') {
             this.throwSyntaxErrorTypeExpected('binaryOperator');
         }
         let currentOperator = this.currentToken.lexeme;
@@ -341,8 +351,8 @@ class Parser {
         let currentPrecedence = this.operatorPrecedences[currentOperator]
         this.debugLog(`Parser current precedence: ${currentPrecedence}`);
 
-        while (currentPrecedence != undefined){
-            if (currentPrecedence <= previousPrecedence){
+        while (currentPrecedence != undefined) {
+            if (currentPrecedence <= previousPrecedence) {
                 break;
             } else {
                 this.advance();
@@ -361,7 +371,7 @@ class Parser {
      * @param {BinaryNode, UnaryNode} leftChild Part of an abstract sybtax tree
      * @returns A BinaryNode
      */
-    parseBinaryTerm(currentOperator, leftChild){
+    parseBinaryTerm(currentOperator, leftChild) {
         let currentNode = new BinaryNode(currentOperator);
         currentNode.leftBranch = leftChild;
         currentNode.rightBranch = this.parseExpression(this.operatorPrecedences[currentOperator]);
@@ -384,7 +394,7 @@ class Parser {
                 // load token for unaryNode
                 this.advance()
                 // add results of recursive call to unary node
-                childNode.child =this.parseUnaryTerm();
+                childNode.child = this.parseUnaryTerm();
                 break;
             } case 'binaryConstant': {
                 // end of branch reached, return terminalNode
@@ -417,7 +427,7 @@ class Parser {
      * Throws an Error if the current Token instance type doesn't match the argument
      * @param {string} expectedType The expected token type
      */
-    throwSyntaxErrorTypeExpected(expectedType){
+    throwSyntaxErrorTypeExpected(expectedType) {
         throw new Error(`Unexpected token: ${this.currentToken.lexeme} ${this.tokenizer.getTokenPointerString()} Expected type: ${expectedType}, Received: ${this.currentToken.tokenType}`)
     }
 
@@ -432,7 +442,7 @@ class Parser {
     /**
      * Throws a syntax error
      */
-    throwSyntaxErrorGeneric(){
+    throwSyntaxErrorGeneric() {
         throw new Error(`Syntax Error:${this.tokenizer.getTokenPointerString()}`)
     }
 
@@ -440,11 +450,11 @@ class Parser {
      * Log message when debugmode is true
      * @param {string} message Message to log
      */
-    debugLog(message){
-        if (this.debugLog){
+    debugLog(message) {
+        if (this.debugLog) {
             console.log(message);
         }
     }
 }
 
-export {Parser}
+export { Parser }
