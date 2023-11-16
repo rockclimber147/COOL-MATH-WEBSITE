@@ -1,13 +1,25 @@
+
+/**
+ * Describes a token
+ */
 class Token {
     tokenType;
     lexeme;
 
+    /**
+     * Construct a Token
+     * @param {string} tokenType The type of the token
+     * @param {string} lexeme the character representing the token
+     */
     constructor(tokenType, lexeme) {
         this.tokenType = tokenType;
         this.lexeme = lexeme;
     }
 }
 
+/**
+ * Carries out the actioons of a Tokenizer or Lexer
+ */
 class Tokenizer {
     debug = false;
     binaryOperators = ['*', '+'];
@@ -16,11 +28,20 @@ class Tokenizer {
     inputString;
     stringIndex = 0;
 
+    /**
+     * Construct a Tokenizer instance
+     * @param {string} inputString String to tokenize
+     * @param {boolean} debug Sets debug logging state
+     */
     constructor(inputString, debug) {
         this.inputString = inputString;
         this.debug = debug;
     }
 
+    /**
+     * Read the next character of the input string and constructs a token
+     * @returns A valid Token instance
+     */
     advance() {
         // Return special value when end of input string reached
         if (this.stringIndex >= this.inputString.length) {
@@ -50,12 +71,15 @@ class Tokenizer {
             this.stringIndex++;
             throw new Error(`unknown symbol: ${currentChar} at position ${this.stringIndex}${this.getTokenPointerString()}`);
         }
-        // this.debugLog(`${currentChar}: ${tokenType}`);
 
         this.stringIndex++;
         return new Token(tokenType, currentChar)
     }
 
+    /**
+     * Make an HTML string to point out the location of the current token in the input expression
+     * @returns An HTML string pointing out the current token from the input expression
+     */
     getTokenPointerString() {
         let paddingLeft = this.stringIndex - 1;
         let paddingRight = this.inputString.length - paddingLeft - 1;
@@ -65,6 +89,10 @@ class Tokenizer {
         return errorString
     }
 
+    /**
+     * Log message when debugmode is true
+     * @param {string} input Message to log
+     */
     debugLog(input) {
         if (this.debug) {
             console.log(input);
@@ -72,6 +100,9 @@ class Tokenizer {
     }
 }
 
+/**
+ * Represents a binary operation in an abstract syntax tree
+ */
 class BinaryNode {
     operator;
     leftBranch;
@@ -79,10 +110,20 @@ class BinaryNode {
 
     parser;
 
+    /**
+     * Construct a BinaryNode instance with a reference to the parent Parser instance
+     * @param {string} nodeValue The operation string to store
+     * @param {Parser} parser The parent Parser instance
+     */
     constructor(nodeValue, parser) {
         this.operator = nodeValue;
         this.parser = parser;
     }
+
+    /**
+     * Recursively evaluates itself and all child nodes based on stored operators
+     * @returns A string representing the result of the evaluation
+     */
     evaluate() {
         if (this.operator == '+') {
             if (this.leftBranch.evaluate() == '1' || this.rightBranch.evaluate() == '1') {
@@ -98,20 +139,27 @@ class BinaryNode {
             throw new Error(`BinaryNode contains unknown operator: ${this.operator}`)
         }
     }
-    getHTML(indentCount) {
-        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<td valign="top">
-        ${this.leftBranch.getHTML(indentCount + 3)}
-        ${'    '.repeat(indentCount + 2)}</td>
-        ${'    '.repeat(indentCount + 2)}<td valign="top">
-        ${this.rightBranch.getHTML(indentCount + 3)}
-        ${'    '.repeat(indentCount + 2)}</td>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount)}</table>`
+
+    /**
+     * Recursively constructs an HYML table string of itself and all child nodes
+     * @param {number} indentCount The amount of times to indent
+     * @param {number} padding The type of padding to indent with
+     * @returns a string representing an HTML table
+     */
+    getHTML(indentCount, padding) {
+        return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
+        ${padding.repeat(indentCount + 1)}<tr>
+        ${padding.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.operator}</th>
+        ${padding.repeat(indentCount + 1)}</tr>
+        ${padding.repeat(indentCount + 1)}<tr>
+        ${padding.repeat(indentCount + 2)}<td valign="top">
+        ${this.leftBranch.getHTML(indentCount + 3, padding)}
+        ${padding.repeat(indentCount + 2)}</td>
+        ${padding.repeat(indentCount + 2)}<td valign="top">
+        ${this.rightBranch.getHTML(indentCount + 3, padding)}
+        ${padding.repeat(indentCount + 2)}</td>
+        ${padding.repeat(indentCount + 1)}</tr>
+        ${padding.repeat(indentCount)}</table>`
     }
 }
 
@@ -121,6 +169,11 @@ class UnaryNode {
 
     parser;
 
+    /**
+     * Constructs an instanc of a UnaryNode
+     * @param {string} nodeValue The unary operator to store
+     * @param {Parser} parser A reference to the parent Parser instance
+     */
     constructor(nodeValue, parser) {
         if (nodeValue != '!') {
             throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
@@ -128,23 +181,32 @@ class UnaryNode {
         this.operator = nodeValue;
         this.parser = parser;
     }
+
+    /**
+     * Recursively evaluates itself and all child nodes based on stored operators
+     * @returns A string representing the result of the evaluation
+     */
     evaluate() {
         if (this.child.evaluate() == '1') {
             return '0';
         }
         return '1';
     }
-    addChild(node) {
-        this.child = node;
-    }
-    getHTML(indentCount) {
+
+    /**
+     * Recursively constructs an HYML table string of itself and all child nodes
+     * @param {number} indentCount The amount of times to indent
+     * @param {number} padding The type of padding to indent with
+     * @returns a string representing an HTML table
+     */
+    getHTML(indentCount, padding) {
         return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<th class="operator">${this.operator}</th>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount + 1)}<tr>
         ${'    '.repeat(indentCount + 2)}<td valign="top">
-        ${this.child.getHTML(indentCount + 3)}
+        ${this.child.getHTML(indentCount + 3, padding)}
         ${'    '.repeat(indentCount + 2)}</td>
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount)}</table>`
@@ -153,7 +215,7 @@ class UnaryNode {
 
 class TerminalNode {
     value;
-    
+
     parser;
 
     constructor(value, parser) {
@@ -161,6 +223,10 @@ class TerminalNode {
         this.parser = parser;
     }
 
+    /**
+     * Returns the stored value or symbol value given the symbol table of the parent Parser instance
+     * @returns A number
+     */
     evaluate() {
         let returnValue;
         switch (this.value){
@@ -178,10 +244,17 @@ class TerminalNode {
         if (returnValue === undefined){
             throw new Error(`Runtime Error: ${this.value} is not defined`)
         }
+        return returnValue;
     }
 
-    getHTML(indentCount) {
-        return `${'    '.repeat(indentCount)}<span class="constant">${this.value}</span>`
+    /**
+     * Recursively constructs an HYML table string of itself and all child nodes
+     * @param {number} indentCount The amount of times to indent
+     * @param {number} padding The type of padding to indent with
+     * @returns a string representing an HTML table
+     */
+    getHTML(indentCount, padding) {
+        return `${padding.repeat(indentCount)}<span class="constant">${this.value}</span>`
     }
 }
 
@@ -197,6 +270,11 @@ class Parser {
         '+': 1
     }
 
+    /**
+     * Constructs an instance of a Parser
+     * @param {string} expressionString THe expression to parse as a string
+     * @param {boolean} debug Sets debug logging state
+     */
     constructor(expressionString, debug) {
         this.debug = debug;
         // load tokenizer
@@ -205,6 +283,10 @@ class Parser {
         this.advance()
     }
 
+    /**
+     * Verifies the current token lexeme and advances the stored Tokenizer instance
+     * @param {string} expectedLexeme the lexeme of the current Token instance to check
+     */
     advanceGivenLexeme(expectedLexeme){
         if (this.currentToken.lexeme != expectedLexeme) {
            this.throwSyntaxErrorSymbolExpected(expectedLexeme)
@@ -212,6 +294,10 @@ class Parser {
         this.currentToken = this.tokenizer.advance(); 
     }
 
+    /**
+     * Verifies the current token type and advances the stored Tokenizer instance
+     * @param {*} expectedType the tokenType of the current Token instance to check
+     */
     advanceGivenType(expectedType){
         if (this.currentToken.tokenType != expectedType) {
             this.throwSyntaxErrorTypeExpected(expectedType);
@@ -219,14 +305,25 @@ class Parser {
         this.currentToken = this.tokenizer.advance();
     }
 
+    /**
+     * Advances the stored Tokenizer instance
+     */
     advance(){
         this.currentToken = this.tokenizer.advance(); 
     }
 
+    /**
+     * Constructs an abstract syntax tree and stores it as an instance variable
+     */
     constructAST(){
         this.tree = this.parseExpression(0);
     }
 
+    /**
+     * Recursively parses Tokens and constructs an abstract syntax tree
+     * @param {number} previousPrecedence the operator precedence value to start at
+     * @returns A UnaryNode or BinaryNode
+     */
     parseExpression(previousPrecedence) {
         // Token is already loaded, first term in a valid expression will never be a binary operator
         let child = this.parseUnaryTerm();
@@ -258,6 +355,12 @@ class Parser {
         return child;
     }
 
+    /**
+     * Parses a binary term
+     * @param {string} currentOperator The current operator
+     * @param {BinaryNode, UnaryNode} leftChild Part of an abstract sybtax tree
+     * @returns A BinaryNode
+     */
     parseBinaryTerm(currentOperator, leftChild){
         let currentNode = new BinaryNode(currentOperator);
         currentNode.leftBranch = leftChild;
@@ -265,6 +368,10 @@ class Parser {
         return currentNode;
     }
 
+    /**
+     * Parses a unary term
+     * @returns Part of an abstract sybtax tree
+     */
     parseUnaryTerm() {
         // Current Token is already set
         this.debugLog(`current Token from parseUnaryTerm(): ${this.currentToken.lexeme}`)
@@ -277,7 +384,7 @@ class Parser {
                 // load token for unaryNode
                 this.advance()
                 // add results of recursive call to unary node
-                childNode.addChild(this.parseUnaryTerm());
+                childNode.child =this.parseUnaryTerm();
                 break;
             } case 'binaryConstant': {
                 // end of branch reached, return terminalNode
@@ -306,18 +413,33 @@ class Parser {
         return childNode;
     }
 
+    /**
+     * Throws an Error if the current Token instance type doesn't match the argument
+     * @param {string} expectedType The expected token type
+     */
     throwSyntaxErrorTypeExpected(expectedType){
         throw new Error(`Unexpected token: ${this.currentToken.lexeme} ${this.tokenizer.getTokenPointerString()} Expected type: ${expectedType}, Received: ${this.currentToken.tokenType}`)
     }
 
+    /**
+     * Throws an Error if the current Token instance lexeme doesn't match the argument
+     * @param {string} expectedSymbol The expected symbol
+     */
     throwSyntaxErrorSymbolExpected(expectedSymbol) {
         throw new Error(`Unexpected symbol: ${this.currentToken.lexeme} ${this.tokenizer.getTokenPointerString()} Expected: ${expectedSymbol}`)
     }
 
+    /**
+     * Throws a syntax error
+     */
     throwSyntaxErrorGeneric(){
         throw new Error(`Syntax Error:${this.tokenizer.getTokenPointerString()}`)
     }
 
+    /**
+     * Log message when debugmode is true
+     * @param {string} input Message to log
+     */
     debugLog(input){
         if (this.debugLog){
             console.log(input);

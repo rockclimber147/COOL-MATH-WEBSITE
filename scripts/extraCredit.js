@@ -6,7 +6,7 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     try {
         let parser = new Parser(expression);
         parser.constructAST()
-        let parserHTML = parser.tree.getHTML(0);
+        let parserHTML = parser.tree.getHTML(0, '  ');
         document.getElementById('treeContainer').innerHTML = parserHTML;
     } catch (err) {
         document.getElementById("treeContainer").innerHTML = err.message;
