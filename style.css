@@ -8,12 +8,6 @@
     text-decoration: overline;
 }
 
-/* table, tr, td, th {
-    margin:0px;
-    padding:0px;
-} */
-
-
 
 .operator {
     border-top-right-radius: 50%;
@@ -30,4 +24,9 @@
     height:20px;
     background-color: blue;
     border-radius: 50%;
+}
+
+#treeContainer {
+    display: inline-block;
+    justify-self: center;
 }
