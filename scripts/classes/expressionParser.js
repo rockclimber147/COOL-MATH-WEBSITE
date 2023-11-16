@@ -77,8 +77,11 @@ class BinaryNode {
     leftBranch;
     rightBranch;
 
-    constructor(nodeValue) {
+    parser;
+
+    constructor(nodeValue, parser) {
         this.operator = nodeValue;
+        this.parser = parser;
     }
     evaluate() {
         if (this.operator == '+') {
@@ -115,11 +118,15 @@ class BinaryNode {
 class UnaryNode {
     operator;
     child;
-    constructor(nodeValue) {
+
+    parser;
+
+    constructor(nodeValue, parser) {
         if (nodeValue != '!') {
             throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
         }
         this.operator = nodeValue;
+        this.parser = parser;
     }
     evaluate() {
         if (this.child.evaluate() == '1') {
@@ -146,12 +153,33 @@ class UnaryNode {
 
 class TerminalNode {
     value;
-    constructor(value) {
+    
+    parser;
+
+    constructor(value, parser) {
         this.value = value;
+        this.parser = parser;
     }
+
     evaluate() {
-        return this.value;
+        let returnValue;
+        switch (this.value){
+            case '1': {
+                returnValue = '1';
+                break;
+            } case '0': {
+                returnValue = '0';
+                break;
+            } default: {
+                returnValue = this.parser.symbolTable[this.value];
+                break;
+            }
+        }
+        if (returnValue === undefined){
+            throw new Error(`Runtime Error: ${this.value} is not defined`)
+        }
     }
+
     getHTML(indentCount) {
         return `${'    '.repeat(indentCount)}<span class="constant">${this.value}</span>`
     }
