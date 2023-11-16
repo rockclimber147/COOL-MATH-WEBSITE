@@ -91,11 +91,11 @@ class Tokenizer {
 
     /**
      * Log message when debugmode is true
-     * @param {string} input Message to log
+     * @param {string} message Message to log
      */
-    debugLog(input) {
-        if (this.debug) {
-            console.log(input);
+    debugLog(message){
+        if (this.debugLog){
+            console.log(message);
         }
     }
 }
@@ -438,11 +438,11 @@ class Parser {
 
     /**
      * Log message when debugmode is true
-     * @param {string} input Message to log
+     * @param {string} message Message to log
      */
-    debugLog(input){
+    debugLog(message){
         if (this.debugLog){
-            console.log(input);
+            console.log(message);
         }
     }
 }
