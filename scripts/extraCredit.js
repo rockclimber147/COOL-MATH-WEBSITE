@@ -14,8 +14,9 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
         document.getElementById('treeContainer').innerHTML = resultHTML;
         document.getElementById('treePartsContainer').innerHTML = '';
         for (let i = 0; i < parser.nodeArray.length; i++){
-            let subNodeHTML = '<p>' + parser.nodeArray[i].getHTML(0, '  ') + '</p>\n';
-            document.getElementById('treePartsContainer').innerHTML += subNodeHTML;
+            let subnodeTitle = `<p>${parser.nodeArray[i].getExpressionString()}</p>\n`
+            let subNodeHTML = parser.nodeArray[i].getHTML(0, '  ');
+            document.getElementById('treePartsContainer').innerHTML += subnodeTitle + subNodeHTML;
             console.log(`HTML for subNode ${i}:\n${subNodeHTML}`);
         }
     }

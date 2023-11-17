@@ -154,8 +154,16 @@ class TerminalNode {
     /**
      * Terminus nodes contain no children and aren't appended to the array
      */
-    appendToArray(){
+    appendToArray() {
         console.log(`Terminus reached: ${this.nodeValue}`)
+    }
+
+    /**
+     * Creates a string representing the equation formed by this node.
+     * @returns A string representing the value of this node.
+     */
+    getExpressionString() {
+        return this.nodeValue;
     }
 }
 
@@ -226,6 +234,14 @@ class BinaryNode extends TerminalNode {
         this.parser.nodeArray.push(this);
         console.log(`parent parser `)
     }
+
+    /**
+     * Recursively creates a string representing the equation formed by this node and all children, enclosed in parentheses.
+     * @returns A string representing the equation formed by this node and all children.
+     */
+    getExpressionString() {
+        return `(${this.leftBranch.getExpressionString()}${this.nodeValue}${this.rightBranch.getExpressionString()})`;
+    }
 }
 
 /**
@@ -281,6 +297,14 @@ class UnaryNode extends TerminalNode {
      */
     appendToArray() {
         this.child.appendToArray();
+    }
+
+    /**
+     * Recursively creates a string representing the equation formed by this node and all children.
+     * @returns A string representing the equation formed by this node and all children.
+     */
+    getExpressionString() {
+        return this.nodeValue + this.child.getExpressionString();
     }
 }
 
