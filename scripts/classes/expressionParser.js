@@ -168,6 +168,73 @@ class TerminalNode {
 }
 
 /**
+ * Represents a unary operation in an abstract syntax tree
+ */
+class UnaryNode extends TerminalNode {
+    child;
+
+    /**
+     * Constructs an instanc of a UnaryNode
+     * @param {string} nodeValue The unary operator to store
+     * @param {Parser} parser A reference to the parent Parser instance
+     */
+    constructor(nodeValue, parser) {
+        super(nodeValue, parser)
+        if (nodeValue != '!') {
+            throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
+        }
+    }
+
+    /**
+     * Recursively evaluates itself and all child nodes based on stored operators
+     * @returns A string representing the result of the evaluation
+     */
+    evaluate() {
+        if (this.child.evaluate() == '1') {
+            return '0';
+        }
+        return '1';
+    }
+
+    /**
+     * Recursively constructs an HYML table string of itself and all child nodes
+     * @param {number} indentCount The amount of times to indent
+     * @param {string} padding The type of padding to indent with
+     * @returns a string representing an HTML table
+     */
+    getHTML(indentCount, padding) {
+        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount + 1)}<tr>
+        ${'    '.repeat(indentCount + 2)}<td valign="top">
+        ${this.child.getHTML(indentCount + 3, padding)}
+        ${'    '.repeat(indentCount + 2)}</td>
+        ${'    '.repeat(indentCount + 1)}</tr>
+        ${'    '.repeat(indentCount)}</table>`
+    }
+
+    /**
+     * Calls appendToArray on child node
+     */
+    appendToArray() {
+        this.child.appendToArray();
+    }
+
+    /**
+     * Recursively creates a string representing the equation formed by this node and all children.
+     * @returns A string representing the equation formed by this node and all children.
+     */
+    getExpressionString() {
+        if (this.child instanceof BinaryNode){
+            return `(${this.child.getExpressionString()})`
+        }
+        return this.nodeValue + this.child.getExpressionString();
+    }
+}
+
+/**
  * Represents a binary operation in an abstract syntax tree
  */
 class BinaryNode extends TerminalNode {
@@ -240,71 +307,7 @@ class BinaryNode extends TerminalNode {
      * @returns A string representing the equation formed by this node and all children.
      */
     getExpressionString() {
-        return `(${this.leftBranch.getExpressionString()}${this.nodeValue}${this.rightBranch.getExpressionString()})`;
-    }
-}
-
-/**
- * Represents a unary operation in an abstract syntax tree
- */
-class UnaryNode extends TerminalNode {
-    child;
-
-    /**
-     * Constructs an instanc of a UnaryNode
-     * @param {string} nodeValue The unary operator to store
-     * @param {Parser} parser A reference to the parent Parser instance
-     */
-    constructor(nodeValue, parser) {
-        super(nodeValue, parser)
-        if (nodeValue != '!') {
-            throw new Error(`UnaryNode contains operator other than '!': ${nodeValue}`)
-        }
-    }
-
-    /**
-     * Recursively evaluates itself and all child nodes based on stored operators
-     * @returns A string representing the result of the evaluation
-     */
-    evaluate() {
-        if (this.child.evaluate() == '1') {
-            return '0';
-        }
-        return '1';
-    }
-
-    /**
-     * Recursively constructs an HYML table string of itself and all child nodes
-     * @param {number} indentCount The amount of times to indent
-     * @param {string} padding The type of padding to indent with
-     * @returns a string representing an HTML table
-     */
-    getHTML(indentCount, padding) {
-        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<td valign="top">
-        ${this.child.getHTML(indentCount + 3, padding)}
-        ${'    '.repeat(indentCount + 2)}</td>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount)}</table>`
-    }
-
-    /**
-     * Calls appendToArray on child node
-     */
-    appendToArray() {
-        this.child.appendToArray();
-    }
-
-    /**
-     * Recursively creates a string representing the equation formed by this node and all children.
-     * @returns A string representing the equation formed by this node and all children.
-     */
-    getExpressionString() {
-        return this.nodeValue + this.child.getExpressionString();
+        return `${this.leftBranch.getExpressionString()}${this.nodeValue}${this.rightBranch.getExpressionString()}`;
     }
 }
 
