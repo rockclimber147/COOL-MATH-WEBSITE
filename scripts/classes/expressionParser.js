@@ -227,9 +227,6 @@ class UnaryNode extends TerminalNode {
      * @returns A string representing the equation formed by this node and all children.
      */
     getExpressionString() {
-        if (this.child instanceof BinaryNode){
-            return `(${this.child.getExpressionString()})`
-        }
         return this.nodeValue + this.child.getExpressionString();
     }
 }
@@ -271,7 +268,7 @@ class BinaryNode extends TerminalNode {
     }
 
     /**
-     * Recursively constructs an HYML table string of itself and all child nodes
+     * Recursively constructs an HTML table string of itself and all child nodes
      * @param {number} indentCount The amount of times to indent
      * @param {number} padding The type of padding to indent with
      * @returns a string representing an HTML table
@@ -307,7 +304,7 @@ class BinaryNode extends TerminalNode {
      * @returns A string representing the equation formed by this node and all children.
      */
     getExpressionString() {
-        return `${this.leftBranch.getExpressionString()}${this.nodeValue}${this.rightBranch.getExpressionString()}`;
+        return `(${this.leftBranch.getExpressionString()}${this.nodeValue}${this.rightBranch.getExpressionString()})`;
     }
 }
 
