@@ -19,7 +19,7 @@ class Token {
 }
 
 /**
- * Carries out the actioons of a Tokenizer or Lexer
+ * Carries out the actions of a Tokenizer or Lexer
  */
 class Tokenizer {
     debug = false;
@@ -151,6 +151,10 @@ class TerminalNode {
     getHTML(indentCount, padding) {
         return `${padding.repeat(indentCount)}<span class="constant">${this.nodeValue}</span>`
     }
+
+    appendToArray(){
+        console.log(`Terminus reached: ${this.nodeValue}`)
+    }
 }
 
 /**
@@ -210,12 +214,19 @@ class BinaryNode extends TerminalNode {
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount)}</table>`
     }
+
+    appendToArray() {
+        this.leftBranch.appendToArray();
+        this.rightBranch.appendToArray();
+        this.parser.nodeArray.push(this);
+        console.log(`parent parser `)
+    }
 }
 
 /**
  * Represents a unary operation in an abstract syntax tree
  */
-class UnaryNode extends TerminalNode{
+class UnaryNode extends TerminalNode {
     child;
 
     /**
@@ -259,8 +270,11 @@ class UnaryNode extends TerminalNode{
         ${'    '.repeat(indentCount + 1)}</tr>
         ${'    '.repeat(indentCount)}</table>`
     }
-}
 
+    appendToArray() {
+        this.child.appendToArray();
+    }
+}
 
 /**
  * Contains the functionality necessary to parse an expression string and construct an abstract syntax tree
@@ -271,6 +285,8 @@ class Parser {
     tokenizer;
     currentToken;
     tree;
+
+    nodeArray = [];
 
     operatorPrecedences = {
         '*': 2,
@@ -303,7 +319,7 @@ class Parser {
 
     /**
      * Verifies the current token type and advances the stored Tokenizer instance
-     * @param {*} expectedType the tokenType of the current Token instance to check
+     * @param {string} expectedType the tokenType of the current Token instance to check
      */
     advanceGivenType(expectedType) {
         if (this.currentToken.tokenType != expectedType) {
@@ -324,6 +340,7 @@ class Parser {
      */
     constructAST() {
         this.tree = this.parseExpression(0, 'main');
+        this.tree.appendToArray();
     }
 
     /**
@@ -358,7 +375,7 @@ class Parser {
         }
 
         // initial call should ONLY terminate with 'EOF' token
-        if (callingFunction == 'main' && this.currentToken.tokenType != 'EOF'){
+        if (callingFunction == 'main' && this.currentToken.tokenType != 'EOF') {
             this.throwSyntaxErrorTypeExpected('binaryOperator');
         }
 
@@ -372,7 +389,7 @@ class Parser {
      * @returns A BinaryNode
      */
     parseBinaryTerm(currentOperator, leftChild) {
-        let currentNode = new BinaryNode(currentOperator);
+        let currentNode = new BinaryNode(currentOperator, this);
         currentNode.leftBranch = leftChild;
         currentNode.rightBranch = this.parseExpression(this.operatorPrecedences[currentOperator], 'parseBinary');
         return currentNode;
@@ -390,7 +407,7 @@ class Parser {
         switch (this.currentToken.tokenType) {
             case 'unaryOperator': {
                 // make a child unaryNode
-                childNode = new UnaryNode(this.currentToken.lexeme);
+                childNode = new UnaryNode(this.currentToken.lexeme, this);
                 // load token for unaryNode
                 this.advance()
                 // add results of recursive call to unary node
@@ -398,13 +415,13 @@ class Parser {
                 break;
             } case 'binaryConstant': {
                 // end of branch reached, return terminalNode
-                childNode = new TerminalNode(this.currentToken.lexeme);
+                childNode = new TerminalNode(this.currentToken.lexeme, this);
                 // advance to next token
                 this.advance();
                 break;
             } case 'identifier': {
                 // end of branch reached, return terminalNode
-                childNode = new TerminalNode(this.currentToken.lexeme);
+                childNode = new TerminalNode(this.currentToken.lexeme, this);
                 // advance to next token
                 this.advance();
                 break;
