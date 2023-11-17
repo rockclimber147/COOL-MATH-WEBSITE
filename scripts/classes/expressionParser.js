@@ -151,7 +151,9 @@ class TerminalNode {
     getHTML(indentCount, padding) {
         return `${padding.repeat(indentCount)}<span class="constant">${this.nodeValue}</span>`
     }
-
+    /**
+     * Terminus nodes contain no children and aren't appended to the array
+     */
     appendToArray(){
         console.log(`Terminus reached: ${this.nodeValue}`)
     }
@@ -215,6 +217,9 @@ class BinaryNode extends TerminalNode {
         ${padding.repeat(indentCount)}</table>`
     }
 
+    /**
+     * Calls appendToArray on left and right child then appends itself to the array
+     */
     appendToArray() {
         this.leftBranch.appendToArray();
         this.rightBranch.appendToArray();
@@ -271,6 +276,9 @@ class UnaryNode extends TerminalNode {
         ${'    '.repeat(indentCount)}</table>`
     }
 
+    /**
+     * Calls appendToArray on child node
+     */
     appendToArray() {
         this.child.appendToArray();
     }
