@@ -296,7 +296,6 @@ class BinaryNode extends TerminalNode {
         this.leftBranch.appendToArray();
         this.rightBranch.appendToArray();
         this.parser.nodeArray.push(this);
-        console.log(`parent parser `)
     }
 
     /**

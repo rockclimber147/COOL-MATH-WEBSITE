@@ -6,6 +6,10 @@ class TruthTable {
     tableMaxTerms = [];
     tableFunctions = {'functionNames':[]};
 
+    /**
+     * Constructs a Table instance with binary values stored up to 2 ^ the length of the input list
+     * @param {Array String} varNameArray An array of Strings representing variable names in the table
+     */
     constructor(varNameArray) {
         this.varNames = varNameArray;
         // For each possible combination of variables
@@ -23,6 +27,9 @@ class TruthTable {
         }
     }
 
+    /**
+     * Adds minterms as a column in the table
+     */
     addMinTerm() {
         for (let i = 0; i < this.tableInputs.length; i++) {
             let minTermHTMLString = '';
@@ -42,6 +49,9 @@ class TruthTable {
         }
     }
 
+    /**
+     * Adds maxterms as a column in the table
+     */
     addMaxTerm() {
         for (let i = 0; i < this.tableInputs.length; i++) {
             let HTMLString = '';
@@ -61,24 +71,40 @@ class TruthTable {
         }
     }
 
+    /**
+     * Adds a function in the form of a string and evaluates the answers
+     * @param {String} booleanFunction 
+     */
     addFunction(booleanFunction) {
+        // push the function to functionNames array to associate witth an index
         this.tableFunctions['functionNames'].push(booleanFunction)
+        // Make a new array to store the values of the function
         this.tableFunctions[booleanFunction] = []
         let tableValuesDict = {} // make varNames keys in a dictionary
+
+        // for each binary input
         for (let i = 0; i < this.tableInputs.length; i++) {
+            // associate variable names with their corresponding input values
             for (let j = 0; j < this.varNames.length; j++) {
                 tableValuesDict[this.varNames[j]] = this.tableInputs[i][j];
             }
 
+            // replace the variables in the boolean function with their values from the dictionary
             let formattedFunction = booleanFunction
             for (const key in tableValuesDict){
                 formattedFunction = formattedFunction.replace(key, tableValuesDict[key])
             }
             console.log(formattedFunction);
+            // Populate the values of the function with the results of the evaluation of the formatted function
             this.tableFunctions[booleanFunction].push(eval(formattedFunction))
         }
     }
 
+    /**
+     * Gets the relevant minterms of a function
+     * @param {String} functionString 
+     * @returns An array of minterms as strings
+     */
     getMinTermsOfFunction(functionString){
         console.log(functionString)
         console.log(this.tableFunctions)
@@ -93,6 +119,11 @@ class TruthTable {
         return minTermString.slice(0, minTermString.length - 1)
     }
 
+    /**
+     * Gets the relevant maxterms of a function
+     * @param {String} functionString 
+     * @returns An array of maxterms as strings
+     */
     getMaxTermsOfFunction(functionString) {
         let currentFunctionArray = this.tableFunctions[functionString];
         let maxTermString = '';
