@@ -133,6 +133,7 @@ class TerminalNode {
                 break;
             } default: {
                 returnValue = this.parser.symbolTable[this.nodeValue];
+                console.log(this.nodeValue, '>', this.parser.symbolTable[this.nodeValue])
                 break;
             }
         }
@@ -203,16 +204,16 @@ class UnaryNode extends TerminalNode {
      * @returns a string representing an HTML table
      */
     getHTML(indentCount, padding) {
-        return `${'    '.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount + 1)}<tr>
-        ${'    '.repeat(indentCount + 2)}<td valign="top">
+        return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
+        ${padding.repeat(indentCount + 1)}<tr>
+        ${padding.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
+        ${padding.repeat(indentCount + 1)}</tr>
+        ${padding.repeat(indentCount + 1)}<tr>
+        ${padding.repeat(indentCount + 2)}<td valign="top">
         ${this.child.getHTML(indentCount + 3, padding)}
-        ${'    '.repeat(indentCount + 2)}</td>
-        ${'    '.repeat(indentCount + 1)}</tr>
-        ${'    '.repeat(indentCount)}</table>`
+        ${padding.repeat(indentCount + 2)}</td>
+        ${padding.repeat(indentCount + 1)}</tr>
+        ${padding.repeat(indentCount)}</table>`
     }
 
     /**
@@ -318,6 +319,7 @@ class Parser {
     tree;
 
     nodeArray = [];
+    symbolTable;
 
     operatorPrecedences = {
         '*': 2,
