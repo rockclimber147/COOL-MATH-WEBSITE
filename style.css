@@ -8,22 +8,32 @@
     text-decoration: overline;
 }
 
+th {
+    justify-content: center;
+}
 
-.operator {
-    border-top-right-radius: 50%;
-    border-top-left-radius: 50%;
-    background-color: green;
-    padding-left: auto;
-    padding-right: auto;
+
+.constant, .binary_operator, .unary_operator {
+    text-align:center;
+    display:inline-block;
+    border: 1px solid black;
+    font-size: 25px;
+    line-height: 25px;
+    height:30px;
+    width:30px;
+    border-radius: 50%;
+}
+
+.binary_operator {
+    background-color: rgb(60, 255, 0);
+}
+
+.unary_operator{
+    background-color: rgb(247, 244, 68);
 }
 
 .constant {
-    text-align:center;
-    display:inline-block;
-    width:20px;
-    height:20px;
-    background-color: blue;
-    border-radius: 50%;
+    background-color: rgb(0, 162, 255);
 }
 
 #treeContainer, #treePartsContainer {

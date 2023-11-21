@@ -206,7 +206,7 @@ class UnaryNode extends TerminalNode {
     getHTML(indentCount, padding) {
         return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${padding.repeat(indentCount + 1)}<tr>
-        ${padding.repeat(indentCount + 2)}<th class="operator">${this.nodeValue}</th>
+        ${padding.repeat(indentCount + 2)}<th><span class="unary_operator">${this.nodeValue}</span></th>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount + 1)}<tr>
         ${padding.repeat(indentCount + 2)}<td valign="top">
@@ -277,7 +277,7 @@ class BinaryNode extends TerminalNode {
     getHTML(indentCount, padding) {
         return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${padding.repeat(indentCount + 1)}<tr>
-        ${padding.repeat(indentCount + 2)}<th class="operator" colspan="2">${this.nodeValue}</th>
+        ${padding.repeat(indentCount + 2)}<th colspan="2"><span class="binary_operator">${this.nodeValue}</span></th>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount + 1)}<tr>
         ${padding.repeat(indentCount + 2)}<td valign="top">
