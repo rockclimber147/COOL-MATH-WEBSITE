@@ -40,6 +40,15 @@ class Tokenizer {
     }
 
     /**
+     * Loads a new string into the tokenizer
+     * @param {String} expressionString The expression to tokenize
+     */
+    loadExpression(expressionString){
+        this.inputString = expressionString;
+        this.stringIndex = 0;
+    }
+
+    /**
      * Read the next character of the input string and constructs a token
      * @returns A valid Token instance
      */

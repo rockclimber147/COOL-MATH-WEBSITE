@@ -2,6 +2,8 @@
     --major: #15BAEA;
     --minor: #154FEA;
     --accent: #15EAB0;
+    --correct: #15ea15;
+    --incorrect: #ff5f43;
   }
 
 *{

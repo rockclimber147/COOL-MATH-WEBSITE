@@ -1,10 +1,13 @@
+import {Parser} from './expressionParser.js';
+
 class TruthTable {
 
+    parser;
     varNames;
     tableInputs = [];
     tableMinTerms = [];
     tableMaxTerms = [];
-    tableFunctions = {'functionNames':[]};
+    tableFunctionsDict = {'functionNames':[]};
 
     /**
      * Constructs a Table instance with binary values stored up to 2 ^ the length of the input list
@@ -19,8 +22,8 @@ class TruthTable {
             // get the binary representation with bits equal to the amount of variables
             let binaryString = i.toString(2).padStart(this.varNames.length, '0');
             // Add the individual bits in order
-            for (let i = 0; i < binaryString.length; i++) {
-                binaryList.push(binaryString[i])
+            for (let j = 0; j < binaryString.length; j++) {
+                binaryList.push(binaryString[j])
             }
             // add binary list to the main list
             this.tableInputs.push(binaryList);
@@ -76,12 +79,15 @@ class TruthTable {
      * @param {String} booleanFunction 
      */
     addFunction(booleanFunction) {
+        // Make a Parser to handle the evaluation
+        this.parser = new Parser(booleanFunction)
+        this.parser.constructAST()
         // push the function to functionNames array to associate witth an index
-        this.tableFunctions['functionNames'].push(booleanFunction)
+        this.tableFunctionsDict['functionNames'].push(booleanFunction)
         // Make a new array to store the values of the function
-        this.tableFunctions[booleanFunction] = []
+        this.tableFunctionsDict[booleanFunction] = []
         let tableValuesDict = {} // make varNames keys in a dictionary
-
+        this.parser.symbolTable = tableValuesDict; // set symbol table in parser for evaluating
         // for each binary input
         for (let i = 0; i < this.tableInputs.length; i++) {
             // associate variable names with their corresponding input values
@@ -89,14 +95,9 @@ class TruthTable {
                 tableValuesDict[this.varNames[j]] = this.tableInputs[i][j];
             }
 
-            // replace the variables in the boolean function with their values from the dictionary
-            let formattedFunction = booleanFunction
-            for (const key in tableValuesDict){
-                formattedFunction = formattedFunction.replace(key, tableValuesDict[key])
-            }
-            console.log(formattedFunction);
+
             // Populate the values of the function with the results of the evaluation of the formatted function
-            this.tableFunctions[booleanFunction].push(eval(formattedFunction))
+            this.tableFunctionsDict[booleanFunction].push(this.parser.tree.evaluate())
         }
     }
 
@@ -107,8 +108,8 @@ class TruthTable {
      */
     getMinTermsOfFunction(functionString){
         console.log(functionString)
-        console.log(this.tableFunctions)
-        let currentFunctionArray = this.tableFunctions[functionString];
+        console.log(this.tableFunctionsDict)
+        let currentFunctionArray = this.tableFunctionsDict[functionString];
         console.log(`getting minterms of: ${currentFunctionArray}`)
         let minTermString = '';
         for (let i = 1; i < currentFunctionArray.length; i++){
@@ -116,6 +117,7 @@ class TruthTable {
                 minTermString += this.tableMinTerms[i - 1] + '+';
             }
         }
+        // Remove remaining '+'
         return minTermString.slice(0, minTermString.length - 1)
     }
 
@@ -125,13 +127,14 @@ class TruthTable {
      * @returns An array of maxterms as strings
      */
     getMaxTermsOfFunction(functionString) {
-        let currentFunctionArray = this.tableFunctions[functionString];
+        let currentFunctionArray = this.tableFunctionsDict[functionString];
         let maxTermString = '';
         for (let i = 1; i < currentFunctionArray.length; i++) {
             if (currentFunctionArray[i] == 0) {
                 maxTermString += `(${this.tableMaxTerms[i - 1]})*`;
             }
         }
+        // Remove remaining '*'
         return maxTermString.slice(0, maxTermString.length - 1)
     }
 
@@ -142,9 +145,9 @@ class TruthTable {
         for (let i = 0; i < this.varNames.length; i++) {
             tableHTML += `<th>${this.varNames[i]}</th>\n`
         }
-        if (this.tableFunctions['functionNames'].length > 0){
-            for (let i = 0; i < this.tableFunctions['functionNames'].length; i++){
-                tableHTML += `<th>${this.tableFunctions['functionNames'][i]}</th>`
+        if (this.tableFunctionsDict['functionNames'].length > 0){
+            for (let i = 0; i < this.tableFunctionsDict['functionNames'].length; i++){
+                tableHTML += `<th>${this.tableFunctionsDict['functionNames'][i]}</th>`
             }
         }
         if (this.tableMinTerms.length != 0) {
@@ -160,10 +163,10 @@ class TruthTable {
             for (let j = 0; j < this.tableInputs[i].length; j++) {
                 tableHTML += `<td>${this.tableInputs[i][j]}</td>\n`
             }
-            if (this.tableFunctions['functionNames'].length != 0){
-                let functionNameArray = this.tableFunctions['functionNames'];
+            if (this.tableFunctionsDict['functionNames'].length != 0){
+                let functionNameArray = this.tableFunctionsDict['functionNames'];
                 for (let j = 0; j < functionNameArray.length; j++){
-                    tableHTML += `<td>${this.tableFunctions[functionNameArray[j]][i]}</td>\n`
+                    tableHTML += `<td>${this.tableFunctionsDict[functionNameArray[j]][i]}</td>\n`
                 }
             }
             if (this.tableMinTerms.length != 0) {
@@ -197,4 +200,4 @@ class TruthTable {
     }
 }
 
-export {Table}
+export {TruthTable}
