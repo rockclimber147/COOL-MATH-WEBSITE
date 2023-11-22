@@ -1,5 +1,5 @@
 body {
-    background-color: beige;
+    background-color: var(--minor);
 }
 
 #cards_container{
@@ -14,7 +14,7 @@ body {
     display:inline-block;
     width:80%;
     height:200px;
-    border: solid blue 2px;;
-    background-color: aquamarine;
+    border: solid var(--accent) 5px;;
+    background-color: var(--major);
     border-radius: 10px;;
 }

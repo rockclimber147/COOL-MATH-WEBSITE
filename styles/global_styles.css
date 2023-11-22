@@ -1,3 +1,9 @@
+:root {
+    --major: #15BAEA;
+    --minor: #154FEA;
+    --accent: #15EAB0;
+  }
+
 *{
     font-family: monospace;
     text-align: center;
@@ -8,6 +14,6 @@
     text-decoration: overline;
 }
 
-.collapsible {
-    
-}
+/* .collapsible {
+
+} */
