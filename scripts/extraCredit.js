@@ -11,11 +11,11 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     } catch (err) {
         resultHTML = err.message;
     } finally {
-        document.getElementById('treeContainer').innerHTML = resultHTML;
+        document.getElementById('treeContainer').innerHTML = `<div id="main_table" class="table_container">${resultHTML}</div>`;
         document.getElementById('treePartsContainer').innerHTML = '';
         for (let i = 0; i < parser.nodeArray.length; i++){
             let subnodeTitle = `<p>${parser.nodeArray[i].getExpressionString()}</p>\n`
-            let subNodeHTML = parser.nodeArray[i].getHTML(0, '  ');
+            let subNodeHTML = `<div id="sub_table${i}" class="table_container">${parser.nodeArray[i].getHTML(0, '  ')}</div>`;
             document.getElementById('treePartsContainer').innerHTML += subnodeTitle + subNodeHTML;
             console.log(`HTML for subNode ${i}:\n${subNodeHTML}`);
         }
