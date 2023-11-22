@@ -1,4 +1,4 @@
-import {TruthTable} from './classes/table.js';
+import {TruthTable} from './classes/TruthTable.js';
 
 document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     var reservedCharacters = ['(', ')', '+', '!', '*', '0', '1']
