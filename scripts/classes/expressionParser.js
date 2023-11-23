@@ -133,7 +133,7 @@ class TerminalNode {
      */
     evaluate() {
         let returnValue;
-        switch (this.nodevalue) {
+        switch (this.nodeValue) {
             case '1': {
                 returnValue = '1';
                 break;

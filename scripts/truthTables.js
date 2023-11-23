@@ -16,10 +16,14 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     let resultHTML;
     try {
         mainTable.addFunction(expression);
+        mainTable.addMinTerm();
+        mainTable.addMaxTerm();
         resultHTML = mainTable.getTableHTML();
     } catch (err) {
         resultHTML = err.message;
     } finally {
-        document.getElementById('table_container').innerHTML = `<div id="main_table" class="table_container">${resultHTML}</div>`;
+        document.getElementById('table_container').innerHTML = `<div id="main_table" class="table_container">${resultHTML}</div>
+        <p>Minterms of ${expression}:</p>${mainTable.getMinTermsOfFunction(expression)}
+        <p>Maxterms of ${expression}:</p>${mainTable.getMaxTermsOfFunction(expression)}`;
     }
 })

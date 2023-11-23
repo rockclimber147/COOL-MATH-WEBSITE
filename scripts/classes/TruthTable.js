@@ -107,14 +107,13 @@ class TruthTable {
      * @returns An array of minterms as strings
      */
     getMinTermsOfFunction(functionString){
-        console.log(functionString)
-        console.log(this.tableFunctionsDict)
+        console.log('getting minterms of:', functionString)
         let currentFunctionArray = this.tableFunctionsDict[functionString];
         console.log(`getting minterms of: ${currentFunctionArray}`)
         let minTermString = '';
-        for (let i = 1; i < currentFunctionArray.length; i++){
+        for (let i = 0; i < currentFunctionArray.length; i++){
             if (currentFunctionArray[i] == 1){
-                minTermString += this.tableMinTerms[i - 1] + '+';
+                minTermString += '(' + this.tableMinTerms[i] + ')+';
             }
         }
         // Remove remaining '+'
@@ -129,9 +128,9 @@ class TruthTable {
     getMaxTermsOfFunction(functionString) {
         let currentFunctionArray = this.tableFunctionsDict[functionString];
         let maxTermString = '';
-        for (let i = 1; i < currentFunctionArray.length; i++) {
+        for (let i = 0; i < currentFunctionArray.length; i++) {
             if (currentFunctionArray[i] == 0) {
-                maxTermString += `(${this.tableMaxTerms[i - 1]})*`;
+                maxTermString += `(${this.tableMaxTerms[i]})*`;
             }
         }
         // Remove remaining '*'
