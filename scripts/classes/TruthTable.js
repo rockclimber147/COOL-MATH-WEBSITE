@@ -7,7 +7,11 @@ class TruthTable {
     tableInputs = [];
     tableMinTerms = [];
     tableMaxTerms = [];
-    tableFunctionsDict = {'functionNames':[]};
+    tableFunctionsDict = {functionNames: [],};
+    displayState = {
+        minTerms: false,
+        maxTerms: false,
+    }
 
     /**
      * Constructs a Table instance with binary values stored up to 2 ^ the length of the input list
@@ -27,13 +31,16 @@ class TruthTable {
             }
             // add binary list to the main list
             this.tableInputs.push(binaryList);
+
         }
+        this.addMinTerms();
+        this.addMaxTerms();
     }
 
     /**
      * Adds minterms as a column in the table
      */
-    addMinTerm() {
+    addMinTerms() {
         for (let i = 0; i < this.tableInputs.length; i++) {
             let minTermHTMLString = '';
             for (let j = 0; j < this.varNames.length; j++) {
@@ -55,7 +62,7 @@ class TruthTable {
     /**
      * Adds maxterms as a column in the table
      */
-    addMaxTerm() {
+    addMaxTerms() {
         for (let i = 0; i < this.tableInputs.length; i++) {
             let HTMLString = '';
             for (let j = 0; j < this.varNames.length; j++) {
@@ -85,7 +92,12 @@ class TruthTable {
         // push the function to functionNames array to associate witth an index
         this.tableFunctionsDict['functionNames'].push(booleanFunction)
         // Make a new array to store the values of the function
-        this.tableFunctionsDict[booleanFunction] = []
+        this.tableFunctionsDict[booleanFunction] = {
+            mainValues: [],                         // Store the main outputs of the function
+            fragments: this.parser.nodeArray,       // store pointers to all the binary nodes of the function
+            mainVisibility: true,                   // set visibility to true
+            fragmentVisibility: false
+        }
         let tableValuesDict = {} // make varNames keys in a dictionary
         this.parser.symbolTable = tableValuesDict; // set symbol table in parser for evaluating
         // for each binary input
@@ -97,7 +109,7 @@ class TruthTable {
 
 
             // Populate the values of the function with the results of the evaluation of the formatted function
-            this.tableFunctionsDict[booleanFunction].push(this.parser.tree.evaluate())
+            this.tableFunctionsDict[booleanFunction].mainValues.push(this.parser.tree.evaluate())
         }
     }
 
@@ -108,7 +120,7 @@ class TruthTable {
      */
     getMinTermsOfFunction(functionString){
         console.log('getting minterms of:', functionString)
-        let currentFunctionArray = this.tableFunctionsDict[functionString];
+        let currentFunctionArray = this.tableFunctionsDict[functionString].mainValues;
         console.log(`getting minterms of: ${currentFunctionArray}`)
         let minTermString = '';
         for (let i = 0; i < currentFunctionArray.length; i++){
@@ -126,7 +138,7 @@ class TruthTable {
      * @returns An array of maxterms as strings
      */
     getMaxTermsOfFunction(functionString) {
-        let currentFunctionArray = this.tableFunctionsDict[functionString];
+        let currentFunctionArray = this.tableFunctionsDict[functionString].mainValues;
         let maxTermString = '';
         for (let i = 0; i < currentFunctionArray.length; i++) {
             if (currentFunctionArray[i] == 0) {
@@ -138,44 +150,63 @@ class TruthTable {
     }
 
     getTableHTML() {
-        // Table Header
-        let tableHTML = '<table>\n';
-        tableHTML += '<tr>\n'
+        // Start table header row
+        let tableHTML = '<table>\n<tr>\n';
+
+        // Append varNames as inputs
         for (let i = 0; i < this.varNames.length; i++) {
             tableHTML += `<th>${this.varNames[i]}</th>\n`
         }
+        // Add Function Headers
         if (this.tableFunctionsDict['functionNames'].length > 0){
             for (let i = 0; i < this.tableFunctionsDict['functionNames'].length; i++){
                 tableHTML += `<th>${this.tableFunctionsDict['functionNames'][i]}</th>`
             }
         }
-        if (this.tableMinTerms.length != 0) {
-            tableHTML += '<th>min</th>';
+
+        // Add MinTerm Header
+        if (this.displayState.minTerms && this.tableMinTerms.length != 0) {
+            tableHTML += '<th>min<br>Terms</th>';
         }
-        if (this.tableMaxTerms.length != 0) {
-            tableHTML += '<th>Max</th>';
+
+        // Add MaxTerm Header
+        if (this.displayState.maxTerms && this.tableMaxTerms.length != 0) {
+            tableHTML += '<th>Max<br>Terms</th>';
         }
+        // Close Headers
         tableHTML += '</tr>\n'
+
+
         // Table Body
         for (let i = 0; i < this.tableInputs.length; i++) {
+            // Start Row
             tableHTML += '<tr>\n'
+
+            // Add input values
             for (let j = 0; j < this.tableInputs[i].length; j++) {
                 tableHTML += `<td>${this.tableInputs[i][j]}</td>\n`
             }
+            // Add Function Outputs
             if (this.tableFunctionsDict['functionNames'].length != 0){
                 let functionNameArray = this.tableFunctionsDict['functionNames'];
                 for (let j = 0; j < functionNameArray.length; j++){
-                    tableHTML += `<td>${this.tableFunctionsDict[functionNameArray[j]][i]}</td>\n`
+                    tableHTML += `<td>${this.tableFunctionsDict[functionNameArray[j]].mainValues[i]}</td>\n`
                 }
             }
-            if (this.tableMinTerms.length != 0) {
+
+            // Add minTerms
+            if (this.displayState.minTerms && this.tableMinTerms.length != 0) {
                 tableHTML += `<td>${this.tableMinTerms[i]}</td>`;
             }
-            if (this.tableMaxTerms.length != 0) {
+
+            // Add maxTerms
+            if (this.displayState.maxTerms && this.tableMaxTerms.length != 0) {
                 tableHTML += `<td>${this.tableMaxTerms[i]}</td>`;
             }
+            // Finish Row
             tableHTML += '</tr>\n'
         }
+        // Finish Table
         tableHTML += '</table>\n'
         return tableHTML;
     }

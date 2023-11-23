@@ -14,10 +14,10 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     console.log(varNames)
     let mainTable = new TruthTable(varNames);
     let resultHTML;
+    mainTable.displayState.minTerms = false;
+    mainTable.displayState.maxTerms = true;
     try {
         mainTable.addFunction(expression);
-        mainTable.addMinTerm();
-        mainTable.addMaxTerm();
         resultHTML = mainTable.getTableHTML();
     } catch (err) {
         resultHTML = err.message;

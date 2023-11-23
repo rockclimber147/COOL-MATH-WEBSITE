@@ -2,3 +2,6 @@ table, th, td {
     text-align: center;
 }
 
+tr:hover {
+    background-color: aquamarine;
+}
