@@ -4,14 +4,13 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     let expression = document.getElementById('inputExpression').value
     console.log(expression)
     let parser = new Parser(expression);
-    let resultHTML;
     try {
         parser.constructAST()
-        resultHTML = parser.tree.getHTML(0, '  ', 'MainRoot');
-    } catch (err) {
-        resultHTML = err.message;
-    } finally {
         addSVG(parser.tree, 'treeContainer', 'Main')
+    } catch (err) {
+        document.getElementById('treeContainer').innerHTML = err.message;
+    } finally {
+        
 
         // document.getElementById('treePartsContainer').innerHTML = '';
         // for (let i = 0; i < parser.nodeArray.length; i++){
@@ -32,64 +31,50 @@ function addSVG(tree, containerId, tableId){
     let tableBounds = treeContainer.firstChild.getBoundingClientRect()
     console.log(tableBounds)
     let lineCoordinatePairs = []
-
-    addCoordinatePairs(tableId, lineCoordinatePairs)
-    formatCoordinatePairs(tableBounds, lineCoordinatePairs)
+    let tableOffsets = [tableBounds.x, tableBounds.y]
+    console.log(tableOffsets)
+    addCoordinatePairs(tableId, lineCoordinatePairs, tableOffsets)
     console.log(lineCoordinatePairs)
 
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
     svg.setAttribute('width', tableBounds.width)
     svg.setAttribute('height', tableBounds.height)
     svg.innerHTML = getSVGLines(lineCoordinatePairs)
-    svg.style.backgroundColor = 'green'
     treeContainer.appendChild(svg)
 }
 
-function addCoordinatePairs(nodeId, lineCoordinatePairs){
+function addCoordinatePairs(nodeId, lineCoordinatePairs, offsets){
     let currentNode = document.getElementById(nodeId)
-    let currentNodecenter = getCenterOfNode(nodeId)
+    let currentNodeCenter = getCenterOfNode(nodeId, offsets)
 
     switch (currentNode.className){
         case 'unary_operator': {
             let childID = nodeId + 'D'
-            let childNodeCenter = getCenterOfNode(childID)
-            lineCoordinatePairs.push([currentNodecenter, childNodeCenter])
-            addCoordinatePairs(childID, lineCoordinatePairs)
+            let childNodeCenter = getCenterOfNode(childID, offsets)
+            lineCoordinatePairs.push([currentNodeCenter, childNodeCenter])
+            addCoordinatePairs(childID, lineCoordinatePairs, offsets)
             console.log(childID)
             break;
         } case 'binary_operator': {
             let leftChildID = nodeId + 'L'
-            let leftChildNodeCenter = getCenterOfNode(leftChildID)
-            lineCoordinatePairs.push([currentNodecenter, leftChildNodeCenter])
-            addCoordinatePairs(leftChildID, lineCoordinatePairs)
+            let leftChildNodeCenter = getCenterOfNode(leftChildID, offsets)
+            lineCoordinatePairs.push([currentNodeCenter, leftChildNodeCenter])
+            addCoordinatePairs(leftChildID, lineCoordinatePairs, offsets)
 
             let rightChildID = nodeId + 'R'
-            let rightChildNodeCenter = getCenterOfNode(rightChildID)
-            lineCoordinatePairs.push([currentNodecenter, rightChildNodeCenter])
-            addCoordinatePairs(rightChildID, lineCoordinatePairs)
+            let rightChildNodeCenter = getCenterOfNode(rightChildID, offsets)
+            lineCoordinatePairs.push([currentNodeCenter, rightChildNodeCenter])
+            addCoordinatePairs(rightChildID, lineCoordinatePairs, offsets)
             break;
         }
     }
 }
 
-function getCenterOfNode(nodeId){
+function getCenterOfNode(nodeId, offsets){
     console.log('getting center of id: ' + nodeId)
     let bounds = document.getElementById(nodeId).getBoundingClientRect()
     console.log(bounds)
-    return [bounds.x + bounds.width / 2, bounds.y + bounds.y / 2]
-}
-
-function formatCoordinatePairs(tableBounds, pairsArray){
-    let tableOffsets = [tableBounds.x, tableBounds.y]
-
-    for (let i = 0; i < pairsArray.length; i++){
-        for (let j = 0; j < pairsArray[i].length; j++){
-            for (let k = 0; k < pairsArray[i][j].length; k++){
-                pairsArray[i][j][k] -= tableOffsets[k]
-            }
-        }
-    }
-
+    return [bounds.x + bounds.width / 2 - offsets[0], bounds.y + bounds.height / 2 - offsets[1]]
 }
 
 function getSVGLines(lineCoordinatePairs){
