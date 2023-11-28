@@ -14,8 +14,6 @@ class RowEchelonTable {
         this.rows[rowIndex1] = this.rows[rowIndex2];
         this.rows[rowIndex2] = temp;
     }
-
-    
 }
 
 function getFactorList(integer) {
