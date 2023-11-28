@@ -158,8 +158,8 @@ class TerminalNode {
      * @param {number} padding The type of padding to indent with
      * @returns a string representing an HTML table
      */
-    getHTML(indentCount, padding) {
-        return `${padding.repeat(indentCount)}<span class="constant">${this.nodeValue}</span>`
+    getHTML(indentCount, padding, id) {
+        return `${padding.repeat(indentCount)}<span id="${id}" class="constant">${this.nodeValue}</span>`
     }
     /**
      * Terminus nodes contain no children and aren't appended to the array
@@ -212,14 +212,14 @@ class UnaryNode extends TerminalNode {
      * @param {string} padding The type of padding to indent with
      * @returns a string representing an HTML table
      */
-    getHTML(indentCount, padding) {
+    getHTML(indentCount, padding, id) {
         return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${padding.repeat(indentCount + 1)}<tr>
-        ${padding.repeat(indentCount + 2)}<th><span class="unary_operator">${this.nodeValue}</span></th>
+        ${padding.repeat(indentCount + 2)}<th><span id="${id}" class="unary_operator">${this.nodeValue}</span></th>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount + 1)}<tr>
         ${padding.repeat(indentCount + 2)}<td valign="top">
-        ${this.child.getHTML(indentCount + 3, padding)}
+        ${this.child.getHTML(indentCount + 3, padding, id + 'D')}
         ${padding.repeat(indentCount + 2)}</td>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount)}</table>`
@@ -283,17 +283,17 @@ class BinaryNode extends TerminalNode {
      * @param {number} padding The type of padding to indent with
      * @returns a string representing an HTML table
      */
-    getHTML(indentCount, padding) {
+    getHTML(indentCount, padding, id) {
         return `${padding.repeat(indentCount)}<table cellpadding="1" cellspacing="1">
         ${padding.repeat(indentCount + 1)}<tr>
-        ${padding.repeat(indentCount + 2)}<th colspan="2"><span class="binary_operator">${this.nodeValue}</span></th>
+        ${padding.repeat(indentCount + 2)}<th colspan="2"><span id="${id}" class="binary_operator">${this.nodeValue}</span></th>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount + 1)}<tr>
         ${padding.repeat(indentCount + 2)}<td valign="top">
-        ${this.leftBranch.getHTML(indentCount + 3, padding)}
+        ${this.leftBranch.getHTML(indentCount + 3, padding, id + 'L')}
         ${padding.repeat(indentCount + 2)}</td>
         ${padding.repeat(indentCount + 2)}<td valign="top">
-        ${this.rightBranch.getHTML(indentCount + 3, padding)}
+        ${this.rightBranch.getHTML(indentCount + 3, padding, id + 'R')}
         ${padding.repeat(indentCount + 2)}</td>
         ${padding.repeat(indentCount + 1)}</tr>
         ${padding.repeat(indentCount)}</table>`

@@ -43,3 +43,9 @@ th {
     justify-self: center;
     justify-content: center;
 }
+
+svg {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
