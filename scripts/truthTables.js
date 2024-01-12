@@ -4,7 +4,7 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     var reservedCharacters = ['(', ')', '+', '!', '*', '0', '1']
     let expression = document.getElementById('inputExpression').value
     let varNames = []
-    // Add 
+    // Add unique varNames to varNames array
     for (let i = 0; i < expression.length; i++){
         if (!reservedCharacters.includes(expression[i]) && !varNames.includes(expression[i])){
             varNames.push(expression[i])
@@ -14,7 +14,7 @@ document.getElementById('inputExpressionButton').addEventListener('click', ()=>{
     console.log(varNames)
     let mainTable = new TruthTable(varNames);
     let resultHTML;
-    mainTable.displayState.minTerms = false;
+    mainTable.displayState.minTerms = true;
     mainTable.displayState.maxTerms = true;
     try {
         mainTable.addFunction(expression);
